@@ -1,24 +1,32 @@
+'use client';
+
 import Link from 'next/link';
 import Sidebar from '../components/Sidebar';
-import AuthGate from '../components/AuthGate';
 import Navbar from '../components/Navbar';
+import AuthGate from '../components/AuthGate';
+import { useAuth } from '../components/AuthContext';
 import { popularRoutes, formatPrice } from '@/lib/routes';
 
-export default function DashboardPage() {
-  // In a real app, this would come from authentication context/session
-  const username = 'JoyBusUser';
+/**
+ * The signed-in main page. Everything here is wrapped in <AuthGate>, so the
+ * sidebar only ever renders for an authenticated user — a guest who lands on
+ * /home is redirected to /login before any of this markup appears.
+ */
+export default function HomePage() {
+  const { user } = useAuth();
+  const firstName = (user?.name ?? 'Traveller').split(' ')[0];
 
   return (
- <AuthGate>
+    <AuthGate>
       <div className="ds-app">
-        <Navbar user={{ name: 'Admin', role: 'Administrator' }} />
+        <Navbar user={{ name: user?.name ?? 'Traveller', role: user?.role ?? 'Passenger' }} />
 
         <div className="ds-app-body">
-          <Sidebar isAuthenticated username={username} />
+          <Sidebar isAuthenticated username={user?.name ?? 'Traveller'} />
 
           <main className="ds-page">
             <div className="ds-mb">
-              <h1 className="ds-page-title">Hello, {username}!</h1>
+              <h1 className="ds-page-title">Hello, {firstName}!</h1>
               <p className="ds-page-sub">Where would you like to go today?</p>
             </div>
 
@@ -112,7 +120,6 @@ export default function DashboardPage() {
           </main>
         </div>
       </div>
- </AuthGate>
-
+    </AuthGate>
   );
 }

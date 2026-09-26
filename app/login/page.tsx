@@ -5,32 +5,41 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import GuestNavbar from '../components/GuestNavbar';
 import { useAuth } from '../components/AuthContext';
+import PasswordVisibilityToggle from '../components/PasswordVisibilityToggle';
 
 export default function LoginPage() {
   const router = useRouter();
   const { user, loading, signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // If a session is already active there is nothing to log into — go straight
-  // to the signed-in main page.
+  // A valid session goes straight to the protected dashboard.
   useEffect(() => {
-    if (!loading && user) router.replace('/home');
+    if (!loading && user) router.replace('/dashboard');
   }, [loading, user, router]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    setIsSubmitting(true);
 
-    // No auth server exists yet, so this accepts anything and records a local
-    // session. Replace this block when a real sign-in endpoint is available.
-    signIn({
-      name: email.split('@')[0] || 'Traveller',
-      email,
-      role: 'Passenger',
-    });
-
-    router.push('/home');
+    try {
+      const result = await signIn(email, password);
+      
+      if (result.success) {
+        router.replace('/dashboard');
+      } else {
+        setError(result.error || 'Login failed. Please try again.');
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -69,6 +78,16 @@ export default function LoginPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="ds-form">
+              {error && (
+                <div className="ds-alert ds-alert-error">
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <circle cx="10" cy="10" r="7.5" />
+                    <path d="M10 6v4M10 13.5v.5" />
+                  </svg>
+                  <span>{error}</span>
+                </div>
+              )}
+
               <div className="ds-field">
                 <label htmlFor="email" className="ds-label">Email</label>
                 <span className="ds-input-wrap">
@@ -92,7 +111,7 @@ export default function LoginPage() {
 
               <div className="ds-field">
                 <label htmlFor="password" className="ds-label">Password</label>
-                <span className="ds-input-wrap">
+                <span className="ds-input-wrap has-trailing">
                   <span className="ds-input-icon" aria-hidden="true">
                     <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
                       <rect x="4" y="9" width="12" height="8" rx="2" />
@@ -100,13 +119,17 @@ export default function LoginPage() {
                     </svg>
                   </span>
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     id="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
                     className="ds-input"
                     required
+                  />
+                  <PasswordVisibilityToggle
+                    visible={showPassword}
+                    onToggle={() => setShowPassword((visible) => !visible)}
                   />
                 </span>
               </div>
@@ -125,8 +148,8 @@ export default function LoginPage() {
                 </Link>
               </div>
 
-              <button type="submit" className="ds-btn ds-btn-primary ds-btn-block">
-                Log in
+              <button type="submit" className="ds-btn ds-btn-primary ds-btn-block" disabled={isSubmitting}>
+                {isSubmitting ? 'Logging in...' : 'Log in'}
               </button>
 
               <div className="ds-divider">or</div>

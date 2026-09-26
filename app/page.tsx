@@ -81,7 +81,7 @@ export default function LandingPage() {
         {/* Public hero — the login form now lives on /login */}
         <section className="ds-hero ds-hero-full">
             <div className="ds-hero-scenery">
-              <Image src="/hero-bus-bg.webp" alt="" fill priority sizes="100vw" />
+              <Image src="/hero-bus.png" alt="" fill priority sizes="100vw" />
             </div>
 
             <div className="ds-hero-copy">

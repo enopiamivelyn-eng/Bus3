@@ -1,4 +1,4 @@
-﻿﻿'use client';
+﻿'use client';
 
 import Image from 'next/image';
 import Link from 'next/link';
@@ -43,10 +43,10 @@ export default function LoginHeroPage() {
 
       {/* Hero + Login */}
       <main className="hero-stage">
-        {/* Photographic backdrop: coach on a sunset highway (public/hero-bus-bg.webp) */}
+        {/* Photographic backdrop: beautiful bus on a sunset highway (public/hero-bus.png) */}
         <div className="hero-scenery" aria-hidden="true">
           <Image
-            src="/hero-bus-bg.webp"
+            src="/hero-bus.png"
             alt=""
             fill
             priority

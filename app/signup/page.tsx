@@ -4,11 +4,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import GuestNavbar from '../components/GuestNavbar';
-import { useAuth } from '../components/AuthContext';
+import PasswordVisibilityToggle from '../components/PasswordVisibilityToggle';
 
 export default function SignUpPage() {
   const router = useRouter();
-  const { signIn } = useAuth();
   const [form, setForm] = useState({
     fullName: '',
     email: '',
@@ -17,8 +16,11 @@ export default function SignUpPage() {
     confirmPassword: '',
   });
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [apiError, setApiError] = useState('');
 
   const update = (key: keyof typeof form) => (
     e: React.ChangeEvent<HTMLInputElement>
@@ -40,64 +42,44 @@ export default function SignUpPage() {
     return next;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const next = validate();
     setErrors(next);
+    setApiError('');
     if (Object.keys(next).length > 0) return;
 
-    // No backend yet — the account is recorded as a local session so the rest
-    // of the app can treat the visitor as signed in.
-    signIn({
-      name: form.fullName.trim() || 'Traveller',
-      email: form.email,
-      role: 'Passenger',
-    });
-    setSubmitted(true);
+    setIsSubmitting(true);
+
+    try {
+      // Call the registration API
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: form.fullName.trim(),
+          email: form.email,
+          password: form.password,
+          phone: form.phone,
+          role: 'passenger',
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        router.replace('/login?registered=1');
+      } else {
+        // Show API error
+        setApiError(data.error || 'Registration failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      setApiError('Network error. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-
-  if (submitted) {
-    return (
-      <div className="ds-app ds-app-auth">
-        <GuestNavbar />
-
-        <main className="ds-auth-center">
-          <section className="ds-auth-hero">
-            <h2 className="ds-auth-hero-title">
-              Travel Made
-              <br />
-              Easier
-            </h2>
-            <p className="ds-auth-hero-sub">
-              Book Your Bus Tickets
-              <br />
-              Anytime, Anywhere
-            </p>
-          </section>
-
-          <div className="ds-auth-card">
-            <div className="ds-auth-head">
-              <h1 className="ds-auth-title">Account created</h1>
-              <p className="ds-auth-sub">
-                Welcome aboard, {form.fullName.split(' ')[0]}.
-              </p>
-            </div>
-            <p className="ds-note" style={{ marginBottom: '1.2rem' }}>
-              Account creation is not connected to a server yet, so nothing was
-              saved to a database. You are signed in for this session.
-            </p>
-            <button
-              type="button"
-              className="ds-btn ds-btn-primary ds-btn-block"
-              onClick={() => router.push('/home')}
-            >
-              Continue to Home
-            </button>
-          </div>
-        </main>
-      </div>
-    );
-  }
 
   return (
     <div className="ds-app ds-app-auth">
@@ -131,6 +113,16 @@ export default function SignUpPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="ds-form" noValidate>
+              {apiError && (
+                <div className="ds-alert ds-alert-error">
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <circle cx="10" cy="10" r="7.5" />
+                    <path d="M10 6v4M10 13.5v.5" />
+                  </svg>
+                  <span>{apiError}</span>
+                </div>
+              )}
+
               <div className="ds-field">
                 <label htmlFor="fullName" className="ds-label">Full Name</label>
                 <input
@@ -175,15 +167,21 @@ export default function SignUpPage() {
 
               <div className="ds-field">
                 <label htmlFor="password" className="ds-label">Password</label>
-                <input
-                  id="password"
-                  type="password"
-                  value={form.password}
-                  onChange={update('password')}
-                  placeholder="At least 8 characters"
-                  className="ds-input"
-                  aria-invalid={Boolean(errors.password)}
-                />
+                <div className="ds-password-wrap">
+                  <input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={form.password}
+                    onChange={update('password')}
+                    placeholder="At least 8 characters"
+                    className="ds-input"
+                    aria-invalid={Boolean(errors.password)}
+                  />
+                  <PasswordVisibilityToggle
+                    visible={showPassword}
+                    onToggle={() => setShowPassword((visible) => !visible)}
+                  />
+                </div>
                 {errors.password && <p className="ds-error">{errors.password}</p>}
               </div>
 
@@ -191,15 +189,21 @@ export default function SignUpPage() {
                 <label htmlFor="confirmPassword" className="ds-label">
                   Confirm Password
                 </label>
-                <input
-                  id="confirmPassword"
-                  type="password"
-                  value={form.confirmPassword}
-                  onChange={update('confirmPassword')}
-                  placeholder="Re-enter your password"
-                  className="ds-input"
-                  aria-invalid={Boolean(errors.confirmPassword)}
-                />
+                <div className="ds-password-wrap">
+                  <input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={form.confirmPassword}
+                    onChange={update('confirmPassword')}
+                    placeholder="Re-enter your password"
+                    className="ds-input"
+                    aria-invalid={Boolean(errors.confirmPassword)}
+                  />
+                  <PasswordVisibilityToggle
+                    visible={showConfirmPassword}
+                    onToggle={() => setShowConfirmPassword((visible) => !visible)}
+                  />
+                </div>
                 {errors.confirmPassword && (
                   <p className="ds-error">{errors.confirmPassword}</p>
                 )}
@@ -217,8 +221,8 @@ export default function SignUpPage() {
                 {errors.terms && <p className="ds-error">{errors.terms}</p>}
               </div>
 
-              <button type="submit" className="ds-btn ds-btn-primary ds-btn-block">
-                Create Account
+              <button type="submit" className="ds-btn ds-btn-primary ds-btn-block" disabled={isSubmitting}>
+                {isSubmitting ? 'Creating Account...' : 'Create Account'}
               </button>
 
               <p className="ds-form-foot">

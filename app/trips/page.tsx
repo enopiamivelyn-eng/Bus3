@@ -1,28 +1,232 @@
 'use client';
 
-import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import AuthGate from '../components/AuthGate';
 import { useAuth } from '../components/AuthContext';
 import Navbar from '../components/Navbar';
-import { formatPrice } from '@/lib/routes';
 
-const trips = [
-  { id: 'TR-0915-01', route: 'Cebu → Bato', date: 'Sep 5, 2025', time: '08:00 AM', bus: 'CB-2025', seats: '38 / 49', fare: 300, status: 'Scheduled' },
-  { id: 'TR-0915-02', route: 'Cebu → Oslob', date: 'Sep 5, 2025', time: '10:30 AM', bus: 'CO-1820', seats: '21 / 45', fare: 200, status: 'Boarding' },
-  { id: 'TR-0916-01', route: 'Cebu → Boljoon', date: 'Sep 6, 2025', time: '02:00 PM', bus: 'CB-1104', seats: '45 / 49', fare: 300, status: 'Scheduled' },
-  { id: 'TR-0917-01', route: 'Cebu → Dalaguete', date: 'Sep 7, 2025', time: '07:30 AM', bus: 'CD-0731', seats: '12 / 43', fare: 300, status: 'Scheduled' },
-];
+interface Trip {
+  id: string;
+  routeId: string;
+  busId: string;
+  departureDate: string;
+  departureTime: string;
+  arrivalTime: string;
+  price: number;
+  availableSeats: number;
+  status: string;
+  route: {
+    name: string;
+    fromCity: string;
+    toCity: string;
+  };
+  bus: {
+    busNumber: string;
+    model: string;
+  };
+}
 
-const statusClass = (status: string) =>
-  status === 'Boarding' ? 'ds-badge-amber' : 'ds-badge-blue';
+interface Route {
+  id: string;
+  name: string;
+  fromCity: string;
+  toCity: string;
+}
+
+interface Bus {
+  id: string;
+  busNumber: string;
+  model: string;
+  capacity: number;
+}
+
+const statusClass = (status: string) => {
+  if (status === 'scheduled') return 'ds-badge-green';
+  if (status === 'boarding') return 'ds-badge-amber';
+  if (status === 'completed') return 'ds-badge-blue';
+  return 'ds-badge-red';
+};
+
+const formatPrice = (amount: number): string => {
+  return `₱${amount.toLocaleString('en-PH')}`;
+};
 
 export default function TripsPage() {
   const { user } = useAuth();
   const username = user?.name ?? 'Traveller';
+  const isAdmin = user?.role === 'admin';
+  
+  const [trips, setTrips] = useState<Trip[]>([]);
+  const [routes, setRoutes] = useState<Route[]>([]);
+  const [buses, setBuses] = useState<Bus[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [editingTrip, setEditingTrip] = useState<Trip | null>(null);
+  const [formData, setFormData] = useState({
+    routeId: '',
+    busId: '',
+    departureDate: '',
+    departureTime: '',
+    arrivalTime: '',
+    price: '',
+    status: 'scheduled'
+  });
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const [tripsRes, routesRes, busesRes] = await Promise.all([
+        fetch('/api/trips', { credentials: 'include' }),
+        fetch('/api/routes', { credentials: 'include' }),
+        fetch('/api/admin/buses', { credentials: 'include' })
+      ]);
+
+      if (tripsRes.ok) {
+        const tripsData = await tripsRes.json();
+        const tripRows = Array.isArray(tripsData.trips) ? tripsData.trips : [];
+        setTrips(tripRows.map((trip: Trip & {
+          routeName?: string;
+          from?: string;
+          to?: string;
+          busNumber?: string;
+          busModel?: string;
+        }) => ({
+          ...trip,
+          route: trip.route ?? {
+            name: trip.routeName ?? 'Unknown route',
+            fromCity: trip.from ?? '',
+            toCity: trip.to ?? '',
+          },
+          bus: trip.bus ?? {
+            busNumber: trip.busNumber ?? '—',
+            model: trip.busModel ?? '',
+          },
+        })));
+      }
+
+      if (routesRes.ok) {
+        const routesData = await routesRes.json();
+        setRoutes(routesData.routes || []);
+      }
+
+      if (busesRes.ok) {
+        const busesData = await busesRes.json();
+        setBuses(busesData.buses || []);
+      }
+    } catch (err) {
+      setError('Network error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    try {
+      const url = editingTrip 
+        ? `/api/admin/trips/${editingTrip.id}`
+        : '/api/admin/trips';
+      
+      const method = editingTrip ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          routeId: formData.routeId,
+          busId: formData.busId,
+          departureDate: formData.departureDate,
+          departureTime: formData.departureTime,
+          arrivalTime: formData.arrivalTime,
+          price: parseFloat(formData.price),
+          status: formData.status
+        })
+      });
+
+      if (response.ok) {
+        setShowModal(false);
+        setEditingTrip(null);
+        setFormData({ routeId: '', busId: '', departureDate: '', departureTime: '', arrivalTime: '', price: '', status: 'scheduled' });
+        fetchData();
+      } else {
+        const data = await response.json();
+        setError(data.error || 'Operation failed');
+      }
+    } catch (err) {
+      setError('Network error');
+    }
+  };
+
+  const handleEdit = (trip: Trip) => {
+    setEditingTrip(trip);
+    setFormData({
+      routeId: trip.routeId,
+      busId: trip.busId,
+      departureDate: trip.departureDate,
+      departureTime: trip.departureTime,
+      arrivalTime: trip.arrivalTime,
+      price: trip.price.toString(),
+      status: trip.status
+    });
+    setShowModal(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this trip?')) return;
+
+    try {
+      const response = await fetch(`/api/admin/trips/${id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        fetchData();
+      } else {
+        const data = await response.json();
+        setError(data.error || 'Delete failed');
+      }
+    } catch (err) {
+      setError('Network error');
+    }
+  };
+
+  const normalizedSearch = searchTerm.toLowerCase();
+  const filteredTrips = trips.filter((trip) =>
+    [trip.route?.name, trip.route?.fromCity, trip.route?.toCity]
+      .some((value) => value?.toLowerCase().includes(normalizedSearch))
+  );
+
+  if (loading) {
+    return (
+      <AuthGate>
+        <div className="ds-app">
+          <Navbar user={{ name: user?.name ?? 'Traveller', role: user?.role ?? 'Passenger' }} />
+          <div className="ds-app-body">
+            <Sidebar isAuthenticated username={username} />
+            <main className="ds-page">
+              <div className="ds-empty">
+                <div className="loading" style={{ margin: '0 auto' }}></div>
+                <p style={{ marginTop: '1rem', color: 'rgba(255,255,255,0.7)' }}>Loading trips...</p>
+              </div>
+            </main>
+          </div>
+        </div>
+      </AuthGate>
+    );
+  }
 
   return (
- <AuthGate>
+    <AuthGate>
       <div className="ds-app">
         <Navbar user={{ name: user?.name ?? 'Traveller', role: user?.role ?? 'Passenger' }} />
 
@@ -32,55 +236,231 @@ export default function TripsPage() {
           <main className="ds-page">
             <div className="ds-mb">
               <h1 className="ds-page-title">Trips</h1>
-              <p className="ds-page-sub">Upcoming departures and seat availability</p>
+              <p className="ds-page-sub">Manage scheduled trips and seat availability</p>
+            </div>
+
+            {error && (
+              <div className="ds-alert ds-alert-error ds-mb">
+                <span>{error}</span>
+              </div>
+            )}
+
+            <div className="ds-card ds-card-pad ds-mb">
+              <div className="ds-row" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                <input
+                  type="text"
+                  placeholder="Search trips..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="ds-input"
+                  style={{ maxWidth: '300px' }}
+                />
+                <button
+                  onClick={() => {
+                    setEditingTrip(null);
+                    setFormData({ routeId: '', busId: '', departureDate: '', departureTime: '', arrivalTime: '', price: '', status: 'scheduled' });
+                    setShowModal(true);
+                  }}
+                  className="ds-btn ds-btn-primary"
+                >
+                  + Add New Trip
+                </button>
+              </div>
             </div>
 
             <div className="ds-table-wrap">
               <table className="ds-table">
                 <thead>
                   <tr>
-                    <th>Trip ID</th>
                     <th>Route</th>
                     <th>Date</th>
                     <th>Departure</th>
                     <th>Bus</th>
-                    <th>Seats left</th>
-                    <th>Fare</th>
+                    <th>Available Seats</th>
+                    <th>Price</th>
                     <th>Status</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {trips.map((trip) => (
-                    <tr key={trip.id}>
-                      <td className="ds-cell-strong">{trip.id}</td>
-                      <td>{trip.route}</td>
-                      <td>{trip.date}</td>
-                      <td>{trip.time}</td>
-                      <td>{trip.bus}</td>
-                      <td>{trip.seats}</td>
-                      <td className="ds-cell-price">{formatPrice(trip.fare)}</td>
-                      <td>
-                        <span className={`ds-badge ${statusClass(trip.status)}`}>
-                          {trip.status}
-                        </span>
+                  {filteredTrips.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} style={{ textAlign: 'center', padding: '2rem' }}>
+                        No trips found
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    filteredTrips.map((trip) => (
+                      <tr key={trip.id}>
+                        <td className="ds-cell-strong">{trip.route?.name ?? 'Unknown route'}</td>
+                        <td>{trip.departureDate}</td>
+                        <td>{trip.departureTime}</td>
+                        <td>{trip.bus?.busNumber ?? '—'}</td>
+                        <td>{trip.availableSeats}</td>
+                        <td className="ds-cell-price">{formatPrice(trip.price)}</td>
+                        <td>
+                          <span className={`ds-badge ${statusClass(trip.status)}`}>
+                            {trip.status}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="ds-row" style={{ gap: '0.5rem' }}>
+                            <button
+                              onClick={() => handleEdit(trip)}
+                              className="ds-btn ds-btn-soft ds-btn-sm"
+                            >
+                              Edit
+                            </button>
+                            {isAdmin && (
+                              <button
+                                onClick={() => handleDelete(trip.id)}
+                                className="ds-btn ds-btn-soft ds-btn-sm"
+                                style={{ color: '#ef4444' }}
+                              >
+                                Delete
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
 
-            <div className="ds-note ds-note-info" style={{ marginTop: '1.2rem' }}>
-              Trip schedules are sample data — nothing here is persisted yet. See{' '}
-              <Link href="/book-details" className="ds-link">
-                Seats
-              </Link>{' '}
-              to pick a seat on a route.
-            </div>
+            {showModal && (
+              <div className="ds-modal-overlay" onClick={() => setShowModal(false)}>
+                <div className="ds-modal" onClick={(e) => e.stopPropagation()}>
+                  <div className="ds-modal-head">
+                    <h2 className="ds-modal-title">
+                      {editingTrip ? 'Edit Trip' : 'Add New Trip'}
+                    </h2>
+                    <button onClick={() => setShowModal(false)} className="ds-modal-close">×</button>
+                  </div>
+                  
+                  <div className="ds-modal-body">
+                    <form onSubmit={handleSubmit} className="ds-form">
+                      <div className="ds-field">
+                        <label htmlFor="routeId" className="ds-label">Route</label>
+                        <select
+                          id="routeId"
+                          value={formData.routeId}
+                          onChange={(e) => setFormData({...formData, routeId: e.target.value})}
+                          className="ds-select"
+                          required
+                        >
+                          <option value="">Select a route</option>
+                          {routes.map((route) => (
+                            <option key={route.id} value={route.id}>
+                              {route.name} ({route.fromCity} → {route.toCity})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="ds-field">
+                        <label htmlFor="busId" className="ds-label">Bus</label>
+                        <select
+                          id="busId"
+                          value={formData.busId}
+                          onChange={(e) => setFormData({...formData, busId: e.target.value})}
+                          className="ds-select"
+                          required
+                        >
+                          <option value="">Select a bus</option>
+                          {buses.map((bus) => (
+                            <option key={bus.id} value={bus.id}>
+                              {bus.busNumber} ({bus.model}) - {bus.capacity} seats
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="ds-trip-grid">
+                        <div className="ds-field">
+                          <label htmlFor="departureDate" className="ds-label">Departure Date</label>
+                          <input
+                            id="departureDate"
+                            type="date"
+                            value={formData.departureDate}
+                            onChange={(e) => setFormData({...formData, departureDate: e.target.value})}
+                            className="ds-input"
+                            required
+                          />
+                        </div>
+
+                        <div className="ds-field">
+                          <label htmlFor="departureTime" className="ds-label">Departure Time</label>
+                          <input
+                            id="departureTime"
+                            type="time"
+                            value={formData.departureTime}
+                            onChange={(e) => setFormData({...formData, departureTime: e.target.value})}
+                            className="ds-input"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="ds-field">
+                        <label htmlFor="arrivalTime" className="ds-label">Arrival Time</label>
+                        <input
+                          id="arrivalTime"
+                          type="time"
+                          value={formData.arrivalTime}
+                          onChange={(e) => setFormData({...formData, arrivalTime: e.target.value})}
+                          className="ds-input"
+                          required
+                        />
+                      </div>
+
+                      <div className="ds-field">
+                        <label htmlFor="price" className="ds-label">Price</label>
+                        <input
+                          id="price"
+                          type="number"
+                          value={formData.price}
+                          onChange={(e) => setFormData({...formData, price: e.target.value})}
+                          className="ds-input"
+                          required
+                          min="1"
+                          placeholder="300"
+                        />
+                      </div>
+
+                      <div className="ds-field">
+                        <label htmlFor="status" className="ds-label">Status</label>
+                        <select
+                          id="status"
+                          value={formData.status}
+                          onChange={(e) => setFormData({...formData, status: e.target.value})}
+                          className="ds-select"
+                          required
+                        >
+                          <option value="scheduled">Scheduled</option>
+                          <option value="boarding">Boarding</option>
+                          <option value="completed">Completed</option>
+                          <option value="cancelled">Cancelled</option>
+                        </select>
+                      </div>
+
+                      <div className="ds-row-actions">
+                        <button type="button" onClick={() => setShowModal(false)} className="ds-btn ds-btn-outline">
+                          Cancel
+                        </button>
+                        <button type="submit" className="ds-btn ds-btn-primary">
+                          {editingTrip ? 'Update Trip' : 'Add Trip'}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            )}
           </main>
         </div>
       </div>
- </AuthGate>
-
+    </AuthGate>
   );
 }

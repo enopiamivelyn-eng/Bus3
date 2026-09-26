@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* ============================================
+   GLASSMORPHISM DESIGN SYSTEM
+   Clean, Minimal, User-Friendly
+   ============================================ */
+
 /* Reset and Base Styles */
 * {
   margin: 0;
@@ -7,95 +12,996 @@
   box-sizing: border-box;
 }
 
-body {
-  font-family: 'Courier New', monospace;
-  background-color: #f0f9ff;
-  color: #1e293b;
-  overflow-x: hidden;
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  --blur: blur(10px);
+  --primary: #6366f1;
+  --primary-light: #818cf8;
+  --primary-dark: #4f46e5;
+  --accent: #f59e0b;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-light: #94a3b8;
 }
 
-/* Main Container Layout */
-.main-container {
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-attachment: fixed;
+  color: var(--text-primary);
+  overflow-x: hidden;
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* Animated Background
+   Superseded: the app now sits on the flat grey `--ds-app-bg` set on `body`
+   in the design-system layer below. This purple wash and the drifting colour
+   blobs behind it are the legacy glass theme, and they tinted the guest
+   header. Kept for reference, no longer painted. */
+body::before {
+  content: none;
+}
+
+/* Glass Container */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+
+/* Main Layout */
+.ds-app {
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+.ds-app-body {
   display: flex;
   min-height: 100vh;
-  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
 }
 
-/* Sidebar Styles */
-.sidebar {
-  width: 270px;
-  background: linear-gradient(180deg, #2563eb 0%, #1e40af 100%);
-  padding: 2rem 1.5rem;
+/* ============================================
+   SIDEBAR - Glass Design
+   ============================================ */
+
+.ds-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
   display: flex;
   flex-direction: column;
   position: fixed;
-  height: 100vh;
   left: 0;
   top: 0;
-  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+  height: 100vh;
+  overflow-y: auto;
   z-index: 100;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.1);
 }
 
-.sidebar-header {
+.ds-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ds-sidebar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.ds-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.ds-sidebar-brand {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 3rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  gap: 0.875rem;
+  padding: 2rem 1.5rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.logo {
-  flex-shrink: 0;
+.ds-sidebar-logo {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: white;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.95);
   overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.logo-image {
-  width: 72%;
-  height: 72%;
+.ds-sidebar-logo img {
+  width: 70%;
+  height: 70%;
   object-fit: contain;
 }
 
-.sidebar-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: white;
-  font-family: cursive;
-  line-height: 1.2;
+.ds-sidebar-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
 }
 
-/* Navigation */
-.sidebar-nav {
+.ds-sidebar-brand-text strong {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.ds-sidebar-brand-text span {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 400;
+}
+
+.ds-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 1.5rem 1rem;
+  flex: 1;
+}
+
+.ds-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1.125rem;
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.ds-nav-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.05);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.ds-nav-item:hover::before {
+  opacity: 1;
+}
+
+.ds-nav-item:hover {
+  color: #fff;
+  transform: translateX(4px);
+}
+
+.ds-nav-item.is-active {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.ds-nav-item.is-active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 60%;
+  background: #fff;
+  border-radius: 0 4px 4px 0;
+}
+
+.ds-nav-item svg {
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.ds-sidebar-foot {
+  margin-top: auto;
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.ds-sidebar-foot-content {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+.ds-sidebar-foot-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  font-weight: 600;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-size: 0.875rem;
+}
+
+.ds-sidebar-foot-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.ds-sidebar-foot-text strong {
+  display: block;
+  font-size: 0.875rem;
+  color: #fff;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ds-sidebar-foot-text span {
+  display: block;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 0.125rem;
+}
+
+.ds-sidebar-logout {
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ds-sidebar-logout:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #fff;
+}
+
+/* ============================================
+   TOP NAVBAR - Glass Design
+   ============================================ */
+
+.ds-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 0 2rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+}
+
+/* This older layer offsets the bar to clear a 280px fixed sidebar. The sidebar
+   is now an in-flow flex column inside `.ds-app-body` (see the layout layer
+   below), so the offset must only apply where that sidebar is actually
+   rendered — otherwise it leaves a blank 280px block beside the guest bar. */
+.ds-app:has(> .ds-app-body) > .ds-nav,
+.ds-app:has(> .ds-app-body) > .ds-page {
+  margin-left: 280px;
+}
+
+.ds-search {
+  position: relative;
+  flex: 1;
+  max-width: 480px;
+}
+
+.ds-search-input {
+  width: 100%;
+  padding: 0.75rem 3rem 0.75rem 1.125rem;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  font-size: 0.9375rem;
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.ds-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.ds-search-input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.ds-search-icon {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+}
+
+.ds-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.ds-nav-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 1.125rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+}
+
+.ds-nav-stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.ds-nav-stat-text strong {
+  display: block;
+  font-size: 0.875rem;
+  color: #fff;
+  font-weight: 600;
+}
+
+.ds-nav-stat-text span {
+  display: block;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 0.125rem;
+}
+
+.ds-bell {
+  position: relative;
+  padding: 0.625rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ds-bell:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.ds-bell-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.ds-user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem 0.5rem 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ds-user:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.ds-user-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.ds-user-text strong {
+  display: block;
+  font-size: 0.875rem;
+  color: #fff;
+  font-weight: 600;
+}
+
+.ds-user-text span {
+  display: block;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 0.125rem;
+}
+
+/* ============================================
+   MAIN CONTENT - Glass Cards
+   ============================================ */
+
+.ds-page {
+  flex: 1;
+  padding: 2rem;
+  min-height: calc(100vh - 72px);
+}
+
+.ds-card {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.ds-card:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.ds-card-pad {
+  padding: 1.75rem;
+}
+
+.ds-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.ds-card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.ds-card-sub {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 0.25rem;
+}
+
+/* ============================================
+   ALERTS & NOTIFICATIONS
+   ============================================ */
+
+.ds-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  backdrop-filter: blur(10px);
+}
+
+.ds-alert svg {
+  flex-shrink: 0;
+}
+
+.ds-alert-error {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+.ds-alert-success {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #6ee7b7;
+}
+
+.ds-alert-warning {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #fbbf24;
+}
+
+.ds-alert-info {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #93c5fd;
+}
+
+/* ============================================
+   BUTTONS - Glass Design
+   ============================================ */
+
+.ds-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+  white-space: nowrap;
+}
+
+.ds-btn-primary {
+  background: rgba(255, 255, 255, 0.9);
+  color: #667eea;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.ds-btn-primary:hover {
+  background: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.ds-btn-outline {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.ds-btn-outline:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.ds-btn-soft {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.ds-btn-soft:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.ds-btn-ghost {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.ds-btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.ds-btn-sm {
+  padding: 0.5rem 1.2rem;
+  font-size: 0.875rem;
+}
+
+.ds-btn-block {
+  width: 100%;
+}
+
+.ds-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* ============================================
+   FORMS - Glass Design
+   ============================================ */
+
+.ds-field {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  margin-bottom: auto;
-  /* Never let the nav be clipped when the viewport is short */
-  min-height: 0;
-  overflow-y: auto;
-  scrollbar-width: thin;
 }
 
-.nav-item {
-  padding: 1rem 1.5rem;
-  color: white;
-  text-decoration: none;
-  border-radius: 8px;
+.ds-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ds-input,
+.ds-select,
+.ds-textarea {
+  width: 100%;
+  padding: 0.875rem 1.125rem;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  font-size: 0.9375rem;
+  color: #fff;
   transition: all 0.3s ease;
-  font-size: 1.1rem;
-  font-weight: 500;
 }
 
-.nav-item:hover {
+.ds-input::placeholder,
+.ds-textarea::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.ds-input:focus,
+.ds-select:focus,
+.ds-textarea:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.ds-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.ds-select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.7)' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 3rem;
+}
+
+/* ============================================
+   PAGE TITLES & SECTIONS
+   ============================================ */
+
+.ds-page-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.03em;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.15);
+}
+
+.ds-page-sub {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 0.5rem;
+}
+
+.ds-section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+}
+
+.ds-mb {
+  margin-bottom: 2rem;
+}
+
+/* ============================================
+   BADGES - Glass Design
+   ============================================ */
+
+.ds-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.875rem;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+}
+
+.ds-badge-green {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #6ee7b7;
+}
+
+.ds-badge-amber {
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #fbbf24;
+}
+
+.ds-badge-red {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+.ds-badge-blue {
+  background: rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #93c5fd;
+}
+
+.ds-badge-gold {
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #fcd34d;
+}
+
+/* ============================================
+   STATS TILES - Glass Design
+   ============================================ */
+
+.ds-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.ds-stat {
+  display: flex;
+  align-items: center;
+  gap: 1.125rem;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 18px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.ds-stat:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.ds-stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
   background: rgba(255, 255, 255, 0.15);
-  transform: translateX(5px);
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.ds-stat-body strong {
+  display: block;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+}
+
+.ds-stat-body span {
+  display: block;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 0.5rem;
+}
+
+/* ============================================
+   HOME HERO - Glass Design
+   ============================================ */
+
+.ds-home-hero {
+  position: relative;
+  border-radius: 24px;
+  padding: 3rem;
+  margin-bottom: 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.ds-home-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+  z-index: -1;
+}
+
+.ds-home-hero .ds-page-title {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.ds-home-hero .ds-page-sub {
+  font-size: 1.125rem;
+  max-width: 42ch;
+}
+
+/* ============================================
+   LISTS & ROWS - Glass Design
+   ============================================ */
+
+.ds-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ds-row {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 18px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.ds-row:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.ds-row-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.ds-row-route {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.ds-row-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.ds-row-fare {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #fbbf24;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 1024px) {
+  .ds-sidebar {
+    width: 240px;
+  }
+
+  .ds-app:has(> .ds-app-body) > .ds-nav,
+  .ds-app:has(> .ds-app-body) > .ds-page {
+    margin-left: 240px;
+  }
+}
+
+@media (max-width: 768px) {
+  .ds-sidebar {
+    transform: translateX(-100%);
+  }
+
+  .ds-app:has(> .ds-app-body) > .ds-nav,
+  .ds-app:has(> .ds-app-body) > .ds-page {
+    margin-left: 0;
+  }
+  
+  .ds-page {
+    padding: 1.5rem;
+  }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.6s ease forwards;
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+.text-white {
+  color: #fff !important;
+}
+
+.text-muted {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gap-1 {
+  gap: 0.5rem;
+}
+
+.gap-2 {
+  gap: 1rem;
+}
+
+.gap-3 {
+  gap: 1.5rem;
 }
 
 .nav-item.active {
@@ -147,7 +1053,7 @@ body {
   height: 48px;
   border-radius: 50%;
   background: white;
-  border: 3px solid #1e40af;
+  border: 3px solid #0284c7;
 }
 
 .username {
@@ -161,7 +1067,7 @@ body {
   flex: 1;
   margin-left: 270px;
   padding: 0;
-  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #e0f2fe 100%);
+  background: linear-gradient(135deg, #dcfce7 0%, #bae6fd 50%, #dcfce7 100%);
 }
 
 /* Header */
@@ -172,7 +1078,7 @@ body {
   justify-content: space-between;
   align-items: center;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  border: 3px solid #2563eb;
+  border: 3px solid #0ea5e9;
   margin: 2rem 2rem 0 2rem;
   border-radius: 8px 8px 0 0;
 }
@@ -225,15 +1131,15 @@ body {
 }
 
 .search-btn:hover {
-  color: #2563eb;
+  color: #0ea5e9;
   transform: scale(1.1);
 }
 
 .btn-outline {
   padding: 0.6rem 1.5rem;
   background: transparent;
-  border: 2px solid #2563eb;
-  color: #2563eb;
+  border: 2px solid #0ea5e9;
+  color: #0ea5e9;
   text-decoration: none;
   border-radius: 6px;
   font-weight: 600;
@@ -241,14 +1147,14 @@ body {
 }
 
 .btn-outline:hover {
-  background: #2563eb;
+  background: #0ea5e9;
   color: white;
 }
 
 .btn-primary {
   padding: 0.6rem 1.5rem;
-  background: #2563eb;
-  border: 2px solid #2563eb;
+  background: #0ea5e9;
+  border: 2px solid #0ea5e9;
   color: white;
   text-decoration: none;
   border-radius: 6px;
@@ -257,10 +1163,10 @@ body {
 }
 
 .btn-primary:hover {
-  background: #1e40af;
-  border-color: #1e40af;
+  background: #0284c7;
+  border-color: #0284c7;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
 }
 
 .btn-logout {
@@ -291,7 +1197,7 @@ body {
   background: white;
   margin: 0 2rem 2rem 2rem;
   padding: 2rem 3rem 3rem 3rem;
-  border: 3px solid #2563eb;
+  border: 3px solid #0ea5e9;
   border-top: none;
   border-radius: 0 0 8px 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
@@ -340,14 +1246,14 @@ body {
 
 .route-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
-  border-color: #2563eb;
+  box-shadow: 0 8px 20px rgba(14, 165, 233, 0.2);
+  border-color: #0ea5e9;
 }
 
 .route-placeholder {
   width: 100%;
   height: 120px;
-  background: linear-gradient(135deg, #cbd5e1 0%, #e2e8f0 100%);
+  background: linear-gradient(135deg, #bbf7d0 0%, #bae6fd 100%);
 }
 
 .route-info {
@@ -380,7 +1286,7 @@ body {
 
 .btn-reserve {
   padding: 1rem 4rem;
-  background: #2563eb;
+  background: #0ea5e9;
   color: white;
   text-decoration: none;
   border-radius: 8px;
@@ -389,13 +1295,13 @@ body {
   transition: all 0.3s ease;
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
 }
 
 .btn-reserve:hover {
-  background: #1e40af;
+  background: #0284c7;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
 }
 
 /* Login Page Styles */
@@ -410,7 +1316,7 @@ body {
   background: white;
   padding: 3rem;
   border-radius: 12px;
-  border: 3px solid #2563eb;
+  border: 3px solid #0ea5e9;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
   max-width: 500px;
   width: 100%;
@@ -462,8 +1368,8 @@ body {
 
 .form-input:focus {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
 }
 
 .form-input::placeholder {
@@ -492,20 +1398,20 @@ body {
 }
 
 .forgot-password {
-  color: #2563eb;
+  color: #0284c7;
   text-decoration: none;
   font-weight: 600;
   transition: color 0.3s ease;
 }
 
 .forgot-password:hover {
-  color: #1e40af;
+  color: #0369a1;
   text-decoration: underline;
 }
 
 .btn-signin {
   padding: 1rem;
-  background: #2563eb;
+  background: #0ea5e9;
   color: white;
   border: none;
   border-radius: 8px;
@@ -518,9 +1424,9 @@ body {
 }
 
 .btn-signin:hover {
-  background: #1e40af;
+  background: #0284c7;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
 }
 
 .signup-link {
@@ -529,14 +1435,14 @@ body {
 }
 
 .signup-link a {
-  color: #2563eb;
+  color: #0284c7;
   text-decoration: none;
   font-weight: 600;
   transition: color 0.3s ease;
 }
 
 .signup-link a:hover {
-  color: #1e40af;
+  color: #0369a1;
   text-decoration: underline;
 }
 
@@ -608,7 +1514,7 @@ body {
   background: white;
   margin: 0 2rem 2rem 2rem;
   padding: 2rem 3rem 3rem 3rem;
-  border: 3px solid #2563eb;
+  border: 3px solid #0ea5e9;
   border-top: none;
   border-radius: 0 0 8px 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
@@ -651,8 +1557,8 @@ body {
 
 .content-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.15);
-  border-color: #2563eb;
+  box-shadow: 0 8px 20px rgba(14, 165, 233, 0.15);
+  border-color: #0ea5e9;
 }
 
 .card-icon {
@@ -698,15 +1604,15 @@ body {
   display: flex;
   gap: 1rem;
   padding: 1.5rem;
-  background: #f0f9ff;
+  background: #f0fdf4;
   border-radius: 8px;
-  border: 2px solid #bae6fd;
+  border: 2px solid #bbf7d0;
 }
 
 .feature-icon {
   width: 32px;
   height: 32px;
-  background: #2563eb;
+  background: #0ea5e9;
   color: white;
   border-radius: 50%;
   display: flex;
@@ -729,10 +1635,10 @@ body {
 }
 
 .contact-info {
-  background: #f0f9ff;
+  background: #f0fdf4;
   padding: 2rem;
   border-radius: 12px;
-  border: 2px solid #bae6fd;
+  border: 2px solid #bbf7d0;
 }
 
 .contact-grid {
@@ -750,7 +1656,7 @@ body {
 }
 
 .contact-item strong {
-  color: #2563eb;
+  color: #0284c7;
   display: block;
   margin-bottom: 0.25rem;
 }
@@ -797,8 +1703,8 @@ body {
 }
 
 .booking-card:hover {
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.15);
-  border-color: #2563eb;
+  box-shadow: 0 8px 20px rgba(14, 165, 233, 0.15);
+  border-color: #0ea5e9;
 }
 
 .booking-header {
@@ -859,9 +1765,9 @@ body {
 .route-point {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #2563eb;
+  color: #0284c7;
   padding: 0.5rem 1rem;
-  background: #eff6ff;
+  background: #e0f2fe;
   border-radius: 6px;
   white-space: nowrap;
 }
@@ -916,8 +1822,8 @@ body {
   text-decoration: none;
   text-align: center;
   background: white;
-  border: 2px solid #2563eb;
-  color: #2563eb;
+  border: 2px solid #0ea5e9;
+  color: #0284c7;
   border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
@@ -926,7 +1832,7 @@ body {
 }
 
 .btn-secondary:hover {
-  background: #2563eb;
+  background: #0ea5e9;
   color: white;
 }
 
@@ -1002,15 +1908,15 @@ body {
 
 .form-select:focus {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
 }
 
 .booking-summary {
-  background: #f0f9ff;
+  background: #f0fdf4;
   padding: 2rem;
   border-radius: 12px;
-  border: 2px solid #bae6fd;
+  border: 2px solid #bbf7d0;
   margin-bottom: 1rem;
 }
 
@@ -1038,7 +1944,7 @@ body {
 
 .summary-divider {
   height: 2px;
-  background: #bae6fd;
+  background: #bbf7d0;
   margin: 0.5rem 0;
 }
 
@@ -1048,7 +1954,7 @@ body {
 }
 
 .summary-item.total strong {
-  color: #2563eb;
+  color: #b45309;
   font-size: 1.25rem;
 }
 
@@ -1092,7 +1998,7 @@ body {
   content: '•';
   position: absolute;
   left: 0;
-  color: #2563eb;
+  color: #16a34a;
   font-weight: 700;
   font-size: 1.2rem;
 }
@@ -1139,12 +2045,12 @@ body {
 }
 
 .filter-tab:hover {
-  color: #2563eb;
+  color: #0284c7;
 }
 
 .filter-tab.active {
-  color: #2563eb;
-  border-bottom-color: #2563eb;
+  color: #0284c7;
+  border-bottom-color: #0284c7;
 }
 
 .reservations-container {
@@ -1160,14 +2066,14 @@ body {
 
 .reservation-ticket {
   background: white;
-  border: 3px solid #2563eb;
+  border: 3px solid #0ea5e9;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .ticket-header {
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
   padding: 1.5rem;
   display: flex;
   justify-content: space-between;
@@ -1182,7 +2088,7 @@ body {
 }
 
 .reservation-code {
-  color: #bae6fd;
+  color: #bbf7d0;
   font-size: 0.875rem;
   font-family: monospace;
 }
@@ -1270,13 +2176,13 @@ body {
 }
 
 .seat-highlight {
-  color: #2563eb;
+  color: #b45309;
   font-size: 1.1rem;
   font-weight: 700;
 }
 
 .detail-value.price {
-  color: #2563eb;
+  color: #b45309;
   font-size: 1.1rem;
   font-weight: 700;
 }
@@ -1353,8 +2259,8 @@ body {
 }
 
 .btn-icon:hover {
-  border-color: #2563eb;
-  color: #2563eb;
+  border-color: #0ea5e9;
+  color: #0284c7;
 }
 
 .btn-icon.danger:hover {
@@ -1373,7 +2279,7 @@ body {
 }
 
 .profile-card {
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
   padding: 2rem;
   border-radius: 12px;
   display: flex;
@@ -1417,7 +2323,7 @@ body {
 
 .btn-upload:hover {
   background: white;
-  color: #2563eb;
+  color: #0284c7;
 }
 
 .profile-stats {
@@ -1437,7 +2343,7 @@ body {
 
 .stat-label {
   font-size: 0.9rem;
-  color: #bae6fd;
+  color: #bbf7d0;
 }
 
 .profile-section {
@@ -1467,7 +2373,7 @@ body {
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: #2563eb;
+  background: #0ea5e9;
   border: none;
   color: white;
   border-radius: 6px;
@@ -1478,7 +2384,7 @@ body {
 }
 
 .btn-edit:hover {
-  background: #1e40af;
+  background: #0284c7;
 }
 
 .btn-cancel {
@@ -1575,7 +2481,7 @@ body {
 }
 
 .toggle-switch input:checked + .toggle-slider {
-  background-color: #2563eb;
+  background-color: #0ea5e9;
 }
 
 .toggle-switch input:checked + .toggle-slider:before {
@@ -1613,16 +2519,16 @@ body {
   .booking-form-container {
     grid-template-columns: 1fr;
   }
-  
+
   .ticket-content {
     grid-template-columns: 1fr;
   }
-  
+
   .profile-card {
     flex-direction: column;
     gap: 2rem;
   }
-  
+
   .profile-stats {
     width: 100%;
     justify-content: space-around;
@@ -1634,15 +2540,15 @@ body {
     padding: 1.5rem;
     margin: 0 1rem 1rem 1rem;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
   }
-  
+
   .detail-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .account-actions {
     flex-direction: column;
   }
@@ -1704,12 +2610,12 @@ body {
 
 /* Confirmation text on the reserve page */
 .reserve-note {
-  color: #1e40af;
+  color: #0369a1;
   font-size: 0.95rem;
   line-height: 1.5;
   padding: 0.875rem 1rem;
   background: #e0f2fe;
-  border-left: 3px solid #2563eb;
+  border-left: 3px solid #0ea5e9;
   border-radius: 0 6px 6px 0;
 }
 
@@ -1717,7 +2623,7 @@ body {
 .not-found-link {
   display: inline-block;
   margin-top: 1rem;
-  color: #2563eb;
+  color: #0284c7;
   font-weight: 600;
   text-decoration: none;
 }
@@ -1747,7 +2653,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #1d4f7c;
+  background: #0369a1;
 }
 
 /* Navbar */
@@ -1772,14 +2678,14 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #3b82c4;
+  color: #0284c7;
   flex-shrink: 0;
 }
 
 .hero-brand-name {
   font-size: 1.55rem;
   font-weight: 700;
-  color: #1e3a5f;
+  color: #14532d;
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   letter-spacing: -0.01em;
 }
@@ -1791,7 +2697,7 @@ body {
 }
 
 .hero-nav-link {
-  color: #1e3a5f;
+  color: #14532d;
   text-decoration: none;
   font-size: 1rem;
   font-weight: 500;
@@ -1800,7 +2706,7 @@ body {
 }
 
 .hero-nav-link:hover {
-  color: #3b82c4;
+  color: #0284c7;
 }
 
 /* Hero stage */
@@ -1817,7 +2723,7 @@ body {
   inset: 0;
   z-index: 0;
   overflow: hidden;
-  background: linear-gradient(180deg, #7db0da 0%, #e8a866 100%);
+  background: linear-gradient(180deg, #7dd3fc 0%, #86efac 100%);
 }
 
 /* next/image renders a positioned <img>; fill makes it cover the stage.
@@ -1835,11 +2741,11 @@ body {
   inset: 0;
   background: linear-gradient(
     95deg,
-    rgba(9, 34, 60, 0.78) 0%,
-    rgba(9, 34, 60, 0.6) 34%,
-    rgba(9, 34, 60, 0.3) 58%,
-    rgba(9, 34, 60, 0.2) 78%,
-    rgba(9, 34, 60, 0.34) 100%
+    rgba(6, 78, 59, 0.78) 0%,
+    rgba(6, 78, 59, 0.6) 34%,
+    rgba(6, 78, 59, 0.3) 58%,
+    rgba(6, 78, 59, 0.2) 78%,
+    rgba(6, 78, 59, 0.34) 100%
   );
 }
 
@@ -1869,7 +2775,7 @@ body {
   font-weight: 800;
   line-height: 1.06;
   letter-spacing: -0.02em;
-  text-shadow: 0 3px 16px rgba(10, 40, 70, 0.35);
+  text-shadow: 0 3px 16px rgba(6, 78, 59, 0.35);
   margin-bottom: 1.5rem;
 }
 
@@ -1878,7 +2784,7 @@ body {
   font-size: clamp(1.2rem, 2vw, 1.7rem);
   font-weight: 400;
   line-height: 1.35;
-  text-shadow: 0 2px 12px rgba(10, 40, 70, 0.4);
+  text-shadow: 0 2px 12px rgba(6, 78, 59, 0.4);
   margin-bottom: 3.5rem;
 }
 
@@ -1908,8 +2814,8 @@ body {
   height: 74px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.88);
-  color: #2b5a86;
-  box-shadow: 0 6px 18px rgba(10, 40, 70, 0.25);
+  color: #16a34a;
+  box-shadow: 0 6px 18px rgba(6, 78, 59, 0.25);
 }
 
 .hero-feature-label {
@@ -1917,7 +2823,7 @@ body {
   font-size: 1rem;
   font-weight: 500;
   color: #ffffff;
-  text-shadow: 0 2px 10px rgba(10, 40, 70, 0.45);
+  text-shadow: 0 2px 10px rgba(6, 78, 59, 0.45);
   white-space: nowrap;
 }
 
@@ -1926,14 +2832,14 @@ body {
   background: #ffffff;
   border-radius: 18px;
   padding: 2.75rem 2.5rem;
-  box-shadow: 0 24px 60px rgba(9, 34, 58, 0.28);
+  box-shadow: 0 24px 60px rgba(6, 78, 59, 0.28);
 }
 
 .hero-login-title {
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   font-size: 2.1rem;
   font-weight: 700;
-  color: #1e3a5f;
+  color: #14532d;
   margin-bottom: 0.35rem;
   letter-spacing: -0.01em;
 }
@@ -2005,8 +2911,8 @@ body {
 
 .hero-input:focus {
   outline: none;
-  border-color: #3b82c4;
-  box-shadow: 0 0 0 3px rgba(59, 130, 196, 0.14);
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.14);
 }
 
 .hero-input-toggle {
@@ -2023,7 +2929,7 @@ body {
 }
 
 .hero-input-toggle:hover {
-  color: #3b82c4;
+  color: #16a34a;
 }
 
 .hero-form-options {
@@ -2048,20 +2954,20 @@ body {
   width: 19px;
   height: 19px;
   cursor: pointer;
-  accent-color: #3b82c4;
+  accent-color: #16a34a;
 }
 
 .hero-forgot {
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   font-size: 0.95rem;
   font-weight: 600;
-  color: #3b82c4;
+  color: #16a34a;
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .hero-forgot:hover {
-  color: #1e5f9c;
+  color: #b45309;
   text-decoration: underline;
 }
 
@@ -2070,7 +2976,7 @@ body {
   padding: 1rem;
   border: none;
   border-radius: 9px;
-  background: #2f7bc4;
+  background: #0ea5e9;
   color: #ffffff;
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   font-size: 1.05rem;
@@ -2081,9 +2987,9 @@ body {
 }
 
 .hero-btn-primary:hover {
-  background: #1e5f9c;
+  background: #0284c7;
   transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(47, 123, 196, 0.35);
+  box-shadow: 0 8px 20px rgba(14, 165, 233, 0.35);
 }
 
 .hero-divider {
@@ -2107,10 +3013,10 @@ body {
   display: block;
   width: 100%;
   padding: 1rem;
-  border: 1.5px solid #2f7bc4;
+  border: 1.5px solid #0ea5e9;
   border-radius: 9px;
   background: #ffffff;
-  color: #2f7bc4;
+  color: #0284c7;
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   font-size: 1.05rem;
   font-weight: 600;
@@ -2121,7 +3027,7 @@ body {
 }
 
 .hero-btn-outline:hover {
-  background: #f0f7fd;
+  background: #f0fdf4;
 }
 
 /* Responsive */
@@ -2192,9 +3098,10 @@ body {
 }
 /* ==================================================================
    DESIGN SYSTEM v2 — "Travel Made Easier"
-   Blue-on-white admin dashboard look: light app background, white
-   top navbar, dark-blue sidebar with active pill, rounded white cards,
-   soft shadows and a blue accent (#2563eb).
+   Light-green / skyblue admin dashboard look: light app background,
+   white top navbar, skyblue sidebar with active pill, rounded white
+   cards, soft shadows, a skyblue accent (#0ea5e9) and gold (#eab308)
+   reserved for money values.
    Everything below is additive; the legacy .main-container /
    .sidebar classes above are kept for any page not yet migrated.
    ================================================================== */
@@ -2202,22 +3109,30 @@ body {
 :root {
   --ds-blue: #2563eb;
   --ds-blue-dark: #1d4ed8;
-  --ds-blue-deep: #1e3a8a;
-  --ds-sidebar: #1e40af;
-  --ds-sidebar-2: #1e3a8a;
-  --ds-app-bg: #eef3fb;
+  --ds-blue-deep: #1e40af;
+  /* Primary tint — subtle background */
+  --ds-tint: #eff6ff;
+  /* Secondary tints */
+  --ds-tint-green: #f0fdf4;
+  --ds-tint-sky: #f0f9ff;
+  --ds-gold: #f59e0b;
+  --ds-gold-dark: #d97706;
+  --ds-green: #10b981;
+  --ds-sidebar: #1e293b;
+  --ds-sidebar-2: #334155;
+  --ds-app-bg: #f8fafc;
   --ds-ink: #0f172a;
   --ds-muted: #64748b;
   --ds-faint: #94a3b8;
   --ds-line: #e2e8f0;
   --ds-card: #ffffff;
-  --ds-radius: 14px;
-  --ds-radius-sm: 9px;
-  --ds-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.06);
-  --ds-shadow-lg: 0 18px 45px rgba(15, 23, 42, 0.14);
-  --ds-sans: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
-  --ds-nav-h: 68px;
-  --ds-side-w: 232px;
+  --ds-radius: 8px;
+  --ds-radius-sm: 6px;
+  --ds-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --ds-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --ds-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --ds-nav-h: 64px;
+  --ds-side-w: 240px;
 }
 
 /* ---- Base -------------------------------------------------- */
@@ -2226,6 +3141,7 @@ body {
   font-family: var(--ds-sans);
   background: var(--ds-app-bg);
   color: var(--ds-ink);
+  font-size: 14px;
 }
 
 input,
@@ -2253,15 +3169,19 @@ button {
 .ds-nav {
   position: sticky;
   top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
   z-index: 40;
   height: var(--ds-nav-h);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
-  background: #fbfcfe;
+  background: #ffffff;
   border-bottom: 1px solid var(--ds-line);
   padding: 0 1.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
 }
 
 .ds-search {
@@ -2283,24 +3203,24 @@ button {
 
 .ds-search-input {
   width: 100%;
-  padding: 0.7rem 3rem 0.7rem 1.1rem;
+  padding: 0.625rem 2.5rem 0.625rem 1rem;
   border: 1px solid var(--ds-line);
-  border-radius: 999px;
-  background: #f1f5f9;
-  font-size: 0.95rem;
+  border-radius: 8px;
+  background: #f8fafc;
+  font-size: 0.875rem;
   color: var(--ds-ink);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .ds-search-input::placeholder {
-  color: #9aa6b5;
+  color: var(--ds-faint);
 }
 
 .ds-search-input:focus {
   outline: none;
   background: #fff;
   border-color: var(--ds-blue);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .ds-nav-right {
@@ -2321,10 +3241,10 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: #eef4ff;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background: var(--ds-tint);
   color: var(--ds-blue);
   flex-shrink: 0;
 }
@@ -2412,7 +3332,7 @@ button {
 .ds-sidebar {
   width: var(--ds-side-w);
   flex-shrink: 0;
-  background: linear-gradient(180deg, #1e40af 0%, #1d3b96 55%, #1e3a8a 100%);
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -2422,22 +3342,24 @@ button {
   overflow-y: auto;
   scrollbar-width: thin;
   z-index: 30;
+  border-right: 1px solid #334155;
 }
 
 .ds-sidebar-brand {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 1.3rem 1.1rem 1.2rem;
+  padding: 1.5rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .ds-sidebar-logo {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 11px;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
   background: #ffffff;
   overflow: hidden;
   flex-shrink: 0;
@@ -2457,52 +3379,52 @@ button {
 }
 
 .ds-sidebar-brand-text strong {
-  font-size: 1.02rem;
-  font-weight: 700;
+  font-size: 1rem;
+  font-weight: 600;
   letter-spacing: -0.01em;
 }
 
 .ds-sidebar-brand-text span {
   font-size: 0.7rem;
-  color: #c7d7f8;
+  color: #94a3b8;
 }
 
 .ds-nav-list {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
-  padding: 0.35rem 0.7rem 1rem;
+  gap: 0.25rem;
+  padding: 1rem;
 }
 
 .ds-nav-item {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
-  padding: 0.66rem 0.9rem;
-  border-radius: 9px;
-  color: #dbe6fb;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  color: #cbd5e1;
   text-decoration: none;
-  font-size: 0.92rem;
+  font-size: 0.875rem;
   font-weight: 500;
-  transition: background 0.18s ease, color 0.18s ease;
+  transition: all 0.2s ease;
   white-space: nowrap;
 }
 
 .ds-nav-item svg {
   flex-shrink: 0;
-  opacity: 0.92;
+  opacity: 0.9;
 }
 
 .ds-nav-item:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   color: #fff;
 }
 
 .ds-nav-item.is-active {
-  background: #ffffff;
-  color: #1e40af;
+  background: #2563eb;
+  color: #fff;
   font-weight: 600;
-  box-shadow: 0 6px 16px rgba(6, 24, 70, 0.28);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
 .ds-nav-item.is-active svg {
@@ -2511,23 +3433,25 @@ button {
 
 .ds-sidebar-foot {
   margin-top: auto;
-  padding: 1rem 0.9rem 1.2rem;
+  padding: 1rem 1.25rem 1.5rem;
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .ds-sidebar-foot-avatar {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: #ffffff;
-  color: var(--ds-blue);
+  background: #2563eb;
+  color: #fff;
   flex-shrink: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
 }
 
 .ds-sidebar-foot-text {
@@ -2538,15 +3462,16 @@ button {
 }
 
 .ds-sidebar-foot-text strong {
-  font-size: 0.88rem;
+  font-size: 0.875rem;
   color: #fff;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-weight: 500;
 }
 
 .ds-sidebar-foot-text span {
-  font-size: 0.72rem;
-  color: #63e6a0;
+  font-size: 0.75rem;
+  color: #94a3b8;
 }
 
 /* ---- Page container ---------------------------------------- */
@@ -2581,34 +3506,37 @@ button {
   background: var(--ds-blue);
   border-color: var(--ds-blue);
   color: #fff;
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.28);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 .ds-btn-primary:hover {
   background: var(--ds-blue-dark);
   border-color: var(--ds-blue-dark);
   transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .ds-btn-outline {
   background: #fff;
-  border-color: #cbd5e1;
-  color: var(--ds-blue);
+  border-color: var(--ds-line);
+  color: var(--ds-ink);
 }
 
 .ds-btn-outline:hover {
   border-color: var(--ds-blue);
-  background: #f5f9ff;
+  background: var(--ds-tint);
+  color: var(--ds-blue);
 }
 
 .ds-btn-soft {
-  background: #eef4ff;
-  border-color: #dbe6fb;
+  background: var(--ds-tint);
+  border-color: var(--ds-line);
   color: var(--ds-blue);
 }
 
 .ds-btn-soft:hover {
-  background: #e0ebff;
+  background: var(--ds-tint-sky);
+  border-color: var(--ds-blue);
 }
 
 .ds-btn-ghost {
@@ -2623,7 +3551,7 @@ button {
 }
 
 .ds-btn-sm {
-  padding: 0.42rem 0.85rem;
+  padding: 0.42rem 1.2rem;
   font-size: 0.82rem;
   border-radius: 8px;
 }
@@ -2711,6 +3639,71 @@ button {
   margin-top: 0.3rem;
 }
 
+/* ---- Home greeting banner ---------------------------------- */
+/* The photograph sits behind a blue gradient wash. The image is applied to
+   ::before and the gradient to ::after, both absolutely positioned inside
+   the relatively-positioned wrapper, so the photo is pre-tinted and the
+   text stays legible at every point of the banner. */
+.ds-home-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 12px;
+  padding: 2rem;
+  /* Professional gradient */
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* The photograph. Using the bus image for the home hero background */
+.ds-home-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-image: url('/hero-bus.png');
+  background-size: cover;
+  background-position: center 40%;
+  background-repeat: no-repeat;
+}
+
+/* Professional overlay gradient */
+.ds-home-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    100deg,
+    rgba(30, 64, 175, 0.85) 0%,
+    rgba(37, 99, 235, 0.7) 38%,
+    rgba(59, 130, 246, 0.5) 68%,
+    rgba(96, 165, 250, 0.3) 100%
+  );
+}
+
+/* Invert the text colours for the dark banner. */
+.ds-home-hero .ds-page-title {
+  color: #ffffff;
+  font-size: 1.85rem;
+  text-shadow: 0 2px 14px rgba(4, 74, 60, 0.45);
+}
+
+.ds-home-hero .ds-page-sub {
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 1px 10px rgba(4, 74, 60, 0.4);
+}
+
+@media (max-width: 560px) {
+  .ds-home-hero {
+    padding: 1.4rem 1.25rem;
+  }
+
+  .ds-home-hero .ds-page-title {
+    font-size: 1.5rem;
+  }
+}
+
 .ds-mb {
   margin-bottom: 1.35rem;
 }
@@ -2728,23 +3721,28 @@ button {
 }
 
 .ds-badge-green {
-  background: #dcfce7;
-  color: #15803d;
+  background: #d1fae5;
+  color: #065f46;
 }
 
 .ds-badge-amber {
   background: #fef3c7;
-  color: #b45309;
+  color: #92400e;
 }
 
 .ds-badge-red {
   background: #fee2e2;
-  color: #b91c1c;
+  color: #991b1b;
 }
 
 .ds-badge-blue {
-  background: #e0ebff;
-  color: var(--ds-blue);
+  background: var(--ds-tint-sky);
+  color: #1e40af;
+}
+
+.ds-badge-gold {
+  background: #fef3c7;
+  color: #92400e;
 }
 
 .ds-badge-slate {
@@ -2805,7 +3803,7 @@ button {
 .ds-select:focus {
   outline: none;
   border-color: var(--ds-blue);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .ds-input:disabled {
@@ -2842,10 +3840,10 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 46px;
-  height: 46px;
-  border-radius: 12px;
-  background: #eef4ff;
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: var(--ds-tint);
   color: var(--ds-blue);
   flex-shrink: 0;
 }
@@ -2891,14 +3889,14 @@ button {
 
 .ds-route-card:hover {
   transform: translateY(-4px);
-  border-color: #bfd4fb;
+  border-color: #86efac;
   box-shadow: var(--ds-shadow-lg);
 }
 
 .ds-route-media {
   position: relative;
   height: 116px;
-  background: linear-gradient(135deg, #93c5fd 0%, #3b82f6 55%, #1e40af 100%);
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 50%, #bfdbfe 100%);
   overflow: hidden;
 }
 
@@ -2946,7 +3944,7 @@ button {
 }
 
 .ds-route-price {
-  color: var(--ds-blue);
+  color: var(--ds-gold-dark);
   font-weight: 700;
 }
 
@@ -2966,7 +3964,7 @@ button {
   align-items: center;
   gap: 2.25rem;
   padding: 2.4rem 2.5rem;
-  background: #1d4f7c;
+  background: #0369a1;
   box-shadow: var(--ds-shadow-lg);
   margin-bottom: 1.4rem;
 }
@@ -2989,10 +3987,10 @@ button {
   inset: 0;
   background: linear-gradient(
     100deg,
-    rgba(8, 30, 58, 0.82) 0%,
-    rgba(8, 30, 58, 0.62) 36%,
-    rgba(8, 30, 58, 0.3) 62%,
-    rgba(8, 30, 58, 0.22) 100%
+    rgba(6, 78, 59, 0.82) 0%,
+    rgba(6, 78, 59, 0.62) 36%,
+    rgba(6, 78, 59, 0.3) 62%,
+    rgba(6, 78, 59, 0.22) 100%
   );
 }
 
@@ -3008,7 +4006,7 @@ button {
   font-weight: 800;
   line-height: 1.05;
   letter-spacing: -0.025em;
-  text-shadow: 0 3px 18px rgba(6, 24, 48, 0.4);
+  text-shadow: 0 3px 18px rgba(4, 74, 60, 0.4);
   margin-bottom: 0.9rem;
 }
 
@@ -3017,7 +4015,7 @@ button {
   font-weight: 400;
   line-height: 1.4;
   max-width: 22ch;
-  text-shadow: 0 2px 12px rgba(6, 24, 48, 0.45);
+  text-shadow: 0 2px 12px rgba(4, 74, 60, 0.45);
   margin-bottom: 2rem;
 }
 
@@ -3042,8 +4040,8 @@ button {
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.92);
-  color: #1e40af;
+  background: rgba(255, 255, 255, 0.95);
+  color: #2563eb;
   flex-shrink: 0;
 }
 
@@ -3057,13 +4055,13 @@ button {
 .ds-hero-feature-text strong {
   font-size: 0.87rem;
   font-weight: 700;
-  text-shadow: 0 2px 10px rgba(6, 24, 48, 0.5);
+  text-shadow: 0 2px 10px rgba(4, 74, 60, 0.5);
 }
 
 .ds-hero-feature-text span {
   font-size: 0.78rem;
-  color: #dbeafe;
-  text-shadow: 0 2px 10px rgba(6, 24, 48, 0.5);
+  color: #e0e7ff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 /* Login card floating inside the hero */
@@ -3074,7 +4072,7 @@ button {
   background: #fff;
   border-radius: 16px;
   padding: 2rem 1.9rem;
-  box-shadow: 0 26px 60px rgba(6, 24, 48, 0.32);
+  box-shadow: 0 26px 60px rgba(4, 74, 60, 0.32);
 }
 
 .ds-hero-card-head {
@@ -3126,6 +4124,15 @@ button {
 }
 
 .ds-input-wrap.has-trailing .ds-input {
+  padding-right: 2.7rem;
+}
+
+.ds-password-wrap {
+  position: relative;
+  display: block;
+}
+
+.ds-password-wrap .ds-input {
   padding-right: 2.7rem;
 }
 
@@ -3224,7 +4231,7 @@ button {
   width: 40px;
   height: 40px;
   border-radius: 11px;
-  background: #eef4ff;
+  background: var(--ds-tint);
   color: var(--ds-blue);
   flex-shrink: 0;
 }
@@ -3270,7 +4277,7 @@ button {
 }
 
 .ds-row:hover {
-  border-color: #bfd4fb;
+  border-color: #86efac;
   box-shadow: var(--ds-shadow-lg);
 }
 
@@ -3278,7 +4285,7 @@ button {
   width: 62px;
   height: 62px;
   border-radius: 12px;
-  background: #eef4ff;
+  background: var(--ds-tint);
   color: var(--ds-blue);
   display: flex;
   align-items: center;
@@ -3335,7 +4342,7 @@ button {
 .ds-row-fare {
   font-size: 1rem;
   font-weight: 700;
-  color: var(--ds-blue);
+  color: var(--ds-gold-dark);
   white-space: nowrap;
 }
 
@@ -3448,7 +4455,7 @@ button {
 }
 
 .ds-table tbody tr:hover {
-  background: #f8fbff;
+  background: #f4fdf7;
 }
 
 .ds-table .ds-cell-strong {
@@ -3458,7 +4465,7 @@ button {
 
 .ds-table .ds-cell-price {
   font-weight: 700;
-  color: var(--ds-blue);
+  color: #b45309;
 }
 
 /* ---- Auth / form pages ------------------------------------ */
@@ -3486,7 +4493,7 @@ button {
   width: 58px;
   height: 58px;
   border-radius: 16px;
-  background: #eef4ff;
+  background: var(--ds-tint);
   color: var(--ds-blue);
   margin: 0 auto 1.1rem;
 }
@@ -3526,7 +4533,7 @@ button {
 }
 
 .ds-note-info {
-  background: #eef4ff;
+  background: var(--ds-tint);
   border-left-color: var(--ds-blue);
   color: var(--ds-blue-deep);
 }
@@ -3599,15 +4606,15 @@ button {
   gap: 1rem;
   padding: 1rem 1.1rem;
   border-radius: 11px;
-  background: #eef4ff;
-  border: 1px solid #dbe6fb;
+  background: var(--ds-tint);
+  border: 1px solid #bbf7d0;
   margin: 1.1rem 0;
 }
 
 .ds-pay-total strong {
   font-size: 1.35rem;
   font-weight: 800;
-  color: var(--ds-blue);
+  color: #b45309;
 }
 
 .ds-methods {
@@ -3629,14 +4636,14 @@ button {
 }
 
 .ds-method:hover {
-  border-color: #bfd4fb;
-  background: #f8fbff;
+  border-color: #86efac;
+  background: #f7fef9;
 }
 
 .ds-method.is-selected {
   border-color: var(--ds-blue);
-  background: #f5f9ff;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  background: #f0fdf4;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
 }
 
 .ds-method input[type='radio'] {
@@ -3653,7 +4660,7 @@ button {
   width: 38px;
   height: 38px;
   border-radius: 10px;
-  background: #eef4ff;
+  background: var(--ds-tint);
   color: var(--ds-blue);
   flex-shrink: 0;
 }
@@ -3696,7 +4703,7 @@ button {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: #eef4ff;
+  background: var(--ds-tint);
   color: var(--ds-blue);
   font-size: 0.78rem;
   font-weight: 700;
@@ -3794,7 +4801,7 @@ button {
   flex-wrap: wrap;
   padding: 1.6rem 1.8rem;
   border-radius: var(--ds-radius);
-  background: linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%);
+  background: linear-gradient(135deg, #16a34a 0%, #0ea5e9 100%);
   color: #fff;
   box-shadow: var(--ds-shadow-lg);
 }
@@ -3826,7 +4833,7 @@ button {
 
 .ds-profile-identity p {
   font-size: 0.85rem;
-  color: #c7d7f8;
+  color: #dcfce7;
   margin-top: 0.15rem;
 }
 
@@ -3849,7 +4856,7 @@ button {
 
 .ds-profile-stat span {
   font-size: 0.8rem;
-  color: #c7d7f8;
+  color: #dcfce7;
 }
 
 /* ---- Banners (e-ticket header) ---------------------------- */
@@ -3862,7 +4869,7 @@ button {
   flex-wrap: wrap;
   padding: 1.35rem 1.5rem;
   border-radius: 15px 15px 0 0;
-  background: linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%);
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
   color: #fff;
 }
 
@@ -3874,7 +4881,7 @@ button {
 
 .ds-ticket-banner p {
   font-size: 0.82rem;
-  color: #c7d7f8;
+  color: #dcfce7;
   margin-top: 0.2rem;
 }
 
@@ -3901,7 +4908,7 @@ button {
 }
 
 .ds-detail-value.is-price {
-  color: var(--ds-blue);
+  color: #b45309;
   font-weight: 700;
 }
 
@@ -3941,7 +4948,7 @@ button {
   width: 40px;
   height: 40px;
   border-radius: 11px;
-  background: #eef4ff;
+  background: var(--ds-tint);
   color: var(--ds-blue);
   flex-shrink: 0;
 }
@@ -4093,9 +5100,22 @@ button {
    sidebar, no app shell. Used by /, /about, /reserve and the auth pages.
    ================================================================== */
 
+/* ==================================================================
+   Guest (signed-out) header bar
+   One stretched white bar that spans the viewport: the brand lockup is
+   pinned to the left edge, the Log in / Sign up actions to the right.
+   Sitting inline on the bar (instead of in a lifted floating pill) is
+   what removes the stray white block that used to hang off the left side.
+   ================================================================== */
+
 .ds-nav-guest {
+  width: 100%;
   justify-content: space-between;
   padding: 0 1.75rem;
+  background: linear-gradient(90deg, #4b5563 0%, #64748b 50%, #7e8896 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.12);
+  backdrop-filter: none;
 }
 
 .ds-guest-brand {
@@ -4103,48 +5123,61 @@ button {
   align-items: center;
   gap: 0.7rem;
   text-decoration: none;
+  min-width: 0;
 }
 
+/* The badge is cut to a circle and `Mylogo.png` already carries its own
+   circular badge artwork on a dark plate, so the image is scaled to cover the
+   tile rather than sit inside a white backing. This also keeps the lockup from
+   overflowing the 72px bar: 58px tile + the bar's own padding. */
 .ds-guest-brand-logo {
+  flex-shrink: 0;
+  width: 58px;
+  height: 58px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 11px;
-  background: #eef4ff;
+  background: transparent;
+  border-radius: 50%;
   overflow: hidden;
-  flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
 }
 
 .ds-guest-brand-logo img {
-  width: 74%;
-  height: 74%;
-  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .ds-guest-brand-text {
   display: flex;
   flex-direction: column;
-  line-height: 1.15;
+  line-height: 1.2;
+  min-width: 0;
 }
 
 .ds-guest-brand-text strong {
+  display: block;
   font-size: 1.05rem;
   font-weight: 700;
-  color: var(--ds-ink);
+  color: #fff;
   letter-spacing: -0.01em;
 }
 
 .ds-guest-brand-text span {
+  display: block;
   font-size: 0.72rem;
-  color: var(--ds-faint);
+  color: rgba(255, 255, 255, 0.82);
 }
 
+/* Pushed to the right edge so the actions read as a header-right cluster. */
 .ds-guest-actions {
   display: flex;
   align-items: center;
   gap: 0.6rem;
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 /* Centred content column that replaces the sidebar layout */
@@ -4186,7 +5219,7 @@ button {
 .ds-hero-cta-sub {
   font-size: 0.92rem;
   line-height: 1.55;
-  color: #e2ecfb;
+  color: #e3f7ec;
 }
 
 .ds-hero-cta-actions {
@@ -4214,6 +5247,35 @@ button {
   border-color: #fff;
 }
 
+/* Button variants for the dark guest header bar. The default `.ds-btn-primary`
+   is white-on-blue and disappears against the grey bar, so the header uses
+   white / translucent treatments instead. These are scoped above the generic
+   `.ds-btn-*` rules below with `:where()` so that the app's own CSS layer —
+   which also matches `.ds-nav-guest .ds-btn-*` — still wins where it should. */
+:where(.ds-nav-guest) .ds-btn-primary {
+  background: #fff;
+  border-color: #fff;
+  color: #0f172a;
+}
+
+:where(.ds-nav-guest) .ds-btn-primary:hover {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #0f172a;
+}
+
+:where(.ds-nav-guest) .ds-btn-outline {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.55);
+  color: #fff;
+}
+
+:where(.ds-nav-guest) .ds-btn-outline:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: #fff;
+  color: #fff;
+}
+
 .ds-hero-cta-points {
   list-style: none;
   display: flex;
@@ -4230,7 +5292,7 @@ button {
   align-items: center;
   gap: 0.55rem;
   font-size: 0.82rem;
-  color: #dbe7fa;
+  color: #dcfce7;
 }
 
 .ds-hero-cta-points li::before {
@@ -4238,7 +5300,7 @@ button {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #7db4f5;
+  background: #eab308;
   flex-shrink: 0;
 }
 
@@ -4282,7 +5344,7 @@ button {
   border: none;
   border-radius: 9px;
   background: rgba(255, 255, 255, 0.14);
-  color: #dbe6fb;
+  color: #e3f7ec;
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
 }
@@ -4388,10 +5450,10 @@ button {
 }
 /* ==================================================================
    Auth page backdrop (/login, /signup)
-   Full-screen b.png with a blue → white gradient washed over it, so the
+   Full-screen hero-bus.png with a green → sky → gold gradient washed over it, so the
    photograph reads as tinted artwork behind a centred card. The layered
    gradient keeps the middle (where the card sits) bright and the edges
-   blue, which is what makes the white card legible at every viewport.
+   tinted, which is what makes the white card legible at every viewport.
    ================================================================== */
 
 .ds-app-auth {
@@ -4399,12 +5461,12 @@ button {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #eaf2ff;
+  background-color: #eafaf0;
   isolation: isolate;
 }
 
 /* The photograph itself, fixed so it never scrolls away on short screens. */
-/* b.png is a wide, short panorama (1983x793). `cover` scales it to the
+/* hero-bus.png is a wide, short panorama (1983x793). `cover` scales it to the
    viewport height, so on a normal screen it renders far wider than the
    window and only a horizontal slice is visible. Anchoring toward the
    bottom keeps the coach and coastline in frame instead of a band of
@@ -4414,15 +5476,15 @@ button {
   position: fixed;
   inset: 0;
   z-index: -2;
-  background-image: url('/b.png');
+  background-image: url('/hero-bus.png');
   background-size: cover;
   background-position: center 72%;
   background-repeat: no-repeat;
-  background-color: #cfe0f5;
+  background-color: #d4eddf;
 }
 
-/* Blue → white → blue gradient blended over the photo.
-   mix-blend-mode: screen lifts the white/blue wash so the picture tints
+/* Green → sky → gold gradient blended over the photo.
+   mix-blend-mode: screen lifts the white/green wash so the picture tints
    rather than dulls, which keeps the sunset warm instead of muddying it. */
 .ds-app-auth::after {
   content: '';
@@ -4436,21 +5498,34 @@ button {
      coast and sunset show through. */
   background: linear-gradient(
     150deg,
-    rgba(37, 99, 235, 0.42) 0%,
-    rgba(59, 130, 246, 0.24) 26%,
-    rgba(191, 219, 254, 0.16) 50%,
+    rgba(22, 163, 74, 0.42) 0%,
+    rgba(14, 165, 233, 0.24) 26%,
+    rgba(187, 247, 208, 0.16) 50%,
     rgba(255, 255, 255, 0.22) 68%,
-    rgba(96, 165, 250, 0.26) 86%,
-    rgba(30, 58, 138, 0.44) 100%
+    rgba(234, 179, 8, 0.26) 86%,
+    rgba(2, 132, 199, 0.44) 100%
   );
 }
 
-/* A soft dark vignette so the top navbar and card edges stay defined
-   against the brighter centre of the wash. */
+/* A soft vignette so the top navbar and card edges stay defined against the
+   brighter centre of the wash. The bar stays a dark glass film — a near-white
+   one left the white brand text and buttons unreadable against it. */
 .ds-app-auth > .ds-nav-guest {
-  background: rgba(255, 255, 255, 0.86);
+  background: rgba(15, 23, 42, 0.55);
   backdrop-filter: blur(8px);
-  border-bottom: 1px solid rgba(37, 99, 235, 0.16);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+/* Inside the dark auth bar the brand text is already legible, so it does not
+   need the extra shadow the public landing page carries. */
+.ds-app-auth > .ds-nav-guest .ds-guest-brand-text strong {
+  color: #fff;
+  text-shadow: none;
+}
+
+.ds-app-auth > .ds-nav-guest .ds-guest-brand-text span {
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: none;
 }
 
 /* Auth shell: the card is CENTRED in the viewport, with the marketing copy
@@ -4494,7 +5569,7 @@ button {
   color: #ffffff;
   /* The backdrop gradient gets pale around the middle of the page, so the
      white headline needs a shadow to stay legible over the bright wash. */
-  text-shadow: 0 2px 18px rgba(13, 35, 71, 0.35);
+  text-shadow: 0 2px 18px rgba(4, 74, 60, 0.35);
 }
 
 .ds-auth-hero-title {
@@ -4518,14 +5593,14 @@ button {
    the busy photograph behind it. */
 .ds-app-auth .ds-auth-card {
   border: 1px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 28px 70px rgba(13, 35, 71, 0.28);
+  box-shadow: 0 28px 70px rgba(4, 74, 60, 0.28);
   backdrop-filter: blur(3px);
   background: rgba(255, 255, 255, 0.97);
 }
 
-/* Blue accents on the card heading so it ties into the backdrop. */
+/* Green/sky accents on the card heading so it ties into the backdrop. */
 .ds-app-auth .ds-auth-icon {
-  background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+  background: linear-gradient(135deg, #0ea5e9 0%, #16a34a 100%);
   color: #ffffff;
 }
 
@@ -4570,10 +5645,477 @@ button {
   .ds-app-auth::after {
     background: linear-gradient(
       165deg,
-      rgba(37, 99, 235, 0.55) 0%,
-      rgba(191, 219, 254, 0.36) 45%,
+      rgba(22, 163, 74, 0.55) 0%,
+      rgba(187, 247, 208, 0.36) 45%,
       rgba(255, 255, 255, 0.48) 65%,
-      rgba(30, 58, 138, 0.58) 100%
+      rgba(2, 132, 199, 0.58) 100%
     );
+  }
+}
+
+
+/* ============================================
+   LEGACY COMPATIBILITY STYLES
+   (For pages not yet using ds- classes)
+   ============================================ */
+
+/* Login & Auth Pages */
+.login-box,
+.signup-box {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  padding: 3rem;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+  max-width: 480px;
+  width: 100%;
+}
+
+.login-title,
+.signup-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.login-subtitle,
+.signup-subtitle {
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.875rem 1.125rem;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  font-size: 0.9375rem;
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.form-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.form-input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.btn-signin,
+.btn-signup,
+.btn-primary {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  background: rgba(255, 255, 255, 0.9);
+  color: #667eea;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.btn-signin:hover,
+.btn-signup:hover,
+.btn-primary:hover {
+  background: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Guest Navbar */
+.ds-nav-guest {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 50;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  /* The translucent glass fill, padding and shadow for this bar are owned by
+     the guest-header block above; leaving them out here lets that definition
+     win instead of being overwritten by this older layer. */
+}
+
+/* Modal Styles */
+.ds-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 1rem;
+}
+
+.ds-modal {
+  background: var(--ds-card);
+  border-radius: 12px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.ds-modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--ds-line);
+}
+
+.ds-modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--ds-ink);
+  margin: 0;
+}
+
+.ds-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--ds-muted);
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.ds-modal-close:hover {
+  background: var(--ds-tint);
+  color: var(--ds-ink);
+}
+
+.ds-modal-body {
+  padding: 1.5rem;
+}
+
+/* Dashboard Stats Grid */
+.ds-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.ds-stat-card {
+  background: var(--ds-card);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.ds-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--ds-tint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ds-blue);
+}
+
+.ds-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ds-ink);
+  margin: 0;
+}
+
+.ds-stat-label {
+  font-size: 0.875rem;
+  color: var(--ds-muted);
+  margin: 0;
+}
+
+/* The bar is already a solid grey strip, so the older dark-glass treatment and
+   its amber brand text are no longer needed here. */
+
+.ds-guest-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  margin-left: auto;
+}
+
+/* Content Sections */
+.content-section {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  padding: 2.5rem;
+  margin: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.03em;
+}
+
+.page-subtitle {
+  font-size: 1.125rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Route Cards */
+.ds-route-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* These cards sit on a pale glass panel, so their text must be dark. White
+   text here rendered the route names invisible against the card. */
+.ds-route-card {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 20px;
+  overflow: hidden;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.ds-route-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  border-color: rgba(255, 255, 255, 0.9);
+}
+
+.ds-route-media {
+  height: 140px;
+  background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+}
+
+.ds-route-body {
+  padding: 1.5rem;
+}
+
+.ds-route-name {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.75rem;
+}
+
+.ds-route-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.ds-route-price {
+  color: #fbbf24;
+  font-weight: 700;
+}
+
+.ds-route-duration {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Empty States */
+.ds-empty {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+}
+
+.ds-empty h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.75rem;
+}
+
+.ds-empty p {
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 2rem;
+}
+
+/* Loading States */
+.loading {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Table Styles */
+.table-container {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+th {
+  padding: 1rem 1.5rem;
+  text-align: left;
+  font-weight: 600;
+  color: #fff;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+td {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+tbody tr {
+  transition: background 0.2s ease;
+}
+
+tbody tr:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Modal/Dialog */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.modal-content {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  padding: 2.5rem;
+  max-width: 560px;
+  width: 100%;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
+}
+
+.modal-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 1.5rem;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background: white;
+  }
+  
+  .ds-sidebar,
+  .ds-nav,
+  .no-print {
+    display: none !important;
+  }
+  
+  .ds-page {
+    margin-left: 0;
   }
 }

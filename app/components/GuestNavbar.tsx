@@ -22,7 +22,13 @@ export default function GuestNavbar({ activeLabel }: GuestNavbarProps) {
     <header className="ds-nav ds-nav-guest">
       <Link href="/" className="ds-guest-brand">
         <span className="ds-guest-brand-logo">
-          <Image src="/busicon.png" alt="" width={499} height={499} priority />
+          <Image
+            src="/Mylogo.png"
+            alt=""
+            width={408}
+            height={612}
+            priority
+          />
         </span>
         <span className="ds-guest-brand-text">
           <strong>Bus Ticket</strong>

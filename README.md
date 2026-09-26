@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚌 Bus Ticketing System
 
-## Getting Started
+A modern, functional bus ticket booking system built with Next.js, TypeScript, and Prisma.
 
-First, run the development server:
+## 🎯 Project Status: 50% Functional
+
+This system includes:
+- ✅ Real database with data persistence
+- ✅ Authentication & authorization
+- ✅ Working booking system
+- ✅ Admin management panel
+- ✅ Professional UI/UX
+
+## 🚀 Quick Start
 
 ```bash
+# 1. Install dependencies
+npm install
+
+# 2. Setup database with sample data
+npm run db:setup
+
+# 3. Start development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🔐 Test Accounts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**Admin:** `admin@busticket.com` / `admin123`  
+**User:** `user@test.com` / `test123`
 
-## Learn More
+## 📖 Full Documentation
 
-To learn more about Next.js, take a look at the following resources:
+See [QUICK_START.md](./QUICK_START.md) for complete setup instructions and testing guide.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🛠️ Tech Stack
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Framework:** Next.js 16 with App Router
+- **Language:** TypeScript
+- **Database:** SQLite with Prisma ORM
+- **Authentication:** JWT with HTTP-only cookies
+- **Styling:** Custom CSS with professional design
 
-## Deploy on Vercel
+## 📊 Database Schema
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Users** - Authentication and user management
+- **Buses** - Fleet management
+- **Routes** - Travel routes and destinations
+- **Trips** - Scheduled bus trips
+- **Bookings** - Ticket reservations
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🎓 Features for Evaluation
+
+### User Features
+- Search and book tickets
+- View booking history
+- Select payment method
+- Cancel bookings
+- View e-tickets
+
+### Admin Features
+- Manage buses (CRUD)
+- Manage routes (CRUD)
+- Manage trips (CRUD)
+- View all bookings
+- Dashboard overview
+
+## 📝 Development Commands
+
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run db:studio    # Open database GUI
+npm run db:setup     # Reset database with seed data
+```
+
+## 📧 Contact
+
+For questions or issues, refer to the setup documentation in QUICK_START.md
+
+---
+
+**Built for academic evaluation** - Demonstrates full-stack development, database design, authentication, and professional UI/UX skills.

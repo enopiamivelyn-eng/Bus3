@@ -1,46 +1,167 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Sidebar from '../components/Sidebar';
 import AuthGate from '../components/AuthGate';
 import { useAuth } from '../components/AuthContext';
 import Navbar from '../components/Navbar';
-import { routes, timeSlots, formatPrice } from '@/lib/routes';
+import { formatPrice } from '@/lib/routes';
 
-export default function BookDetailsPage() {
+interface Trip {
+  id: string;
+  routeId: string;
+  busId: string;
+  departureDate: string;
+  departureTime: string;
+  arrivalTime: string;
+  price: number;
+  availableSeats: number;
+  routeName: string;
+  from: string;
+  to: string;
+  duration: string;
+  busNumber: string;
+  busModel: string;
+  capacity: number;
+  status: string;
+}
+
+function BookingFormContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const tripId = searchParams.get('tripId');
+  
   const { user } = useAuth();
   const username = user?.name ?? 'Traveller';
-  const [selectedRoute, setSelectedRoute] = useState('');
-  const [travelDate, setTravelDate] = useState('');
-  const [selectedTime, setSelectedTime] = useState('');
+  
+  const [trips, setTrips] = useState<Trip[]>([]);
+  const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const [selectedTripId, setSelectedTripId] = useState(tripId || '');
   const [passengers, setPassengers] = useState(1);
-  const [passengerName, setPassengerName] = useState('');
+  const [seatNumbers, setSeatNumbers] = useState<string[]>([]);
+  const [passengerName, setPassengerName] = useState(user?.name || '');
   const [contactNumber, setContactNumber] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(user?.email || '');
 
-  const selectedRouteData = routes.find((r) => r.id.toString() === selectedRoute);
-  const totalPrice = selectedRouteData
-    ? selectedRouteData.price * passengers
-    : 0;
+  // Fetch available trips
+  useEffect(() => {
+    const fetchTrips = async () => {
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        const response = await fetch(`/api/trips?date=${today}`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          setTrips(data.trips || []);
+          
+          // If tripId is provided, pre-select it
+          if (tripId) {
+            const trip = data.trips.find((t: Trip) => t.id === tripId);
+            if (trip) {
+              setSelectedTrip(trip);
+              setSelectedTripId(tripId);
+            }
+          }
+        } else {
+          setError('Failed to load trips');
+        }
+      } catch (err) {
+        console.error('Error fetching trips:', err);
+        setError('Network error. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleSubmit = (e: React.FormEvent) => {
+    fetchTrips();
+    
+    // Poll for real-time seat updates every 30 seconds
+    const interval = setInterval(fetchTrips, 30000);
+    
+    return () => clearInterval(interval);
+  }, [tripId]);
+
+  // Update selected trip when selection changes
+  useEffect(() => {
+    if (selectedTripId) {
+      const trip = trips.find(t => t.id === selectedTripId);
+      setSelectedTrip(trip || null);
+      
+      // Auto-generate seat numbers when passengers change
+      if (trip) {
+        const bookedSeats = trip.capacity - trip.availableSeats;
+        const newSeats: string[] = [];
+        for (let i = 0; i < passengers; i++) {
+          newSeats.push(`${String.fromCharCode(65 + Math.floor((bookedSeats + i) / 4))}${((bookedSeats + i) % 4) + 1}`);
+        }
+        setSeatNumbers(newSeats);
+      }
+    }
+  }, [selectedTripId, passengers, trips]);
+
+  const totalPrice = selectedTrip ? selectedTrip.price * passengers : 0;
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({
-      selectedRoute,
-      travelDate,
-      selectedTime,
-      passengers,
-      passengerName,
-      contactNumber,
-      email,
-      totalPrice
-    });
-    alert('Booking submitted! Redirecting to payment...');
+    
+    if (!selectedTrip) {
+      alert('Please select a trip');
+      return;
+    }
+
+    if (passengers > selectedTrip.availableSeats) {
+      alert(`Only ${selectedTrip.availableSeats} seats available for this trip`);
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          tripId: selectedTrip.id,
+          seatNumber: seatNumbers[0] || 'A1',
+          passengerName,
+          passengerEmail: email,
+          passengerPhone: contactNumber,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Redirect to payment page with booking ID
+        router.push(`/payment?bookingId=${data.booking.id}`);
+      } else {
+        setError(data.error || 'Failed to create booking');
+      }
+    } catch (err) {
+      console.error('Error creating booking:', err);
+      setError('Network error. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const formatDateTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return {
+      date: date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+      time: date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+    };
   };
 
   return (
- <AuthGate>
       <div className="ds-app">
         <Navbar user={{ name: user?.name ?? 'Traveller', role: user?.role ?? 'Passenger' }} />
 
@@ -55,60 +176,57 @@ export default function BookDetailsPage() {
               </p>
             </div>
 
-            <div className="ds-pay-grid">
-              <form onSubmit={handleSubmit} className="ds-form">
-                {/* Trip details */}
-                <div className="ds-card ds-card-pad">
-                  <div className="ds-card-head">
-                    <h2 className="ds-card-title">Trip Details</h2>
-                  </div>
+            {error && (
+              <div className="ds-alert ds-alert-error ds-mb">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <circle cx="10" cy="10" r="7.5" />
+                  <path d="M10 6v4M10 13.5v.5" />
+                </svg>
+                <span>{error}</span>
+              </div>
+            )}
 
-                  <div className="ds-form" style={{ gap: '0.9rem' }}>
-                    <div className="ds-field">
-                      <label htmlFor="route" className="ds-label">Select Route *</label>
-                      <select
-                        id="route"
-                        value={selectedRoute}
-                        onChange={(e) => setSelectedRoute(e.target.value)}
-                        className="ds-select"
-                        required
-                      >
-                        <option value="">Choose a route</option>
-                        {routes.map((route) => (
-                          <option key={route.id} value={route.id}>
-                            {route.name} - {formatPrice(route.price)} ({route.duration})
-                          </option>
-                        ))}
-                      </select>
+            {loading ? (
+              <div className="ds-empty">
+                <div className="loading" style={{ margin: '0 auto' }}></div>
+                <p style={{ marginTop: '1rem', color: 'rgba(255,255,255,0.7)' }}>Loading trips...</p>
+              </div>
+            ) : trips.length === 0 ? (
+              <div className="ds-empty">
+                <h3>No trips available</h3>
+                <p>There are no scheduled trips at the moment. Please check back later.</p>
+                <Link href="/home" className="ds-btn ds-btn-primary" style={{ marginTop: '1rem' }}>
+                  Back to Home
+                </Link>
+              </div>
+            ) : (
+              <div className="ds-pay-grid">
+                <form onSubmit={handleSubmit} className="ds-form">
+                  {/* Trip details */}
+                  <div className="ds-card ds-card-pad">
+                    <div className="ds-card-head">
+                      <h2 className="ds-card-title">Trip Details</h2>
                     </div>
 
-                    <div className="ds-trip-grid">
+                    <div className="ds-form" style={{ gap: '0.9rem' }}>
                       <div className="ds-field">
-                        <label htmlFor="date" className="ds-label">Travel Date *</label>
-                        <input
-                          type="date"
-                          id="date"
-                          value={travelDate}
-                          onChange={(e) => setTravelDate(e.target.value)}
-                          className="ds-input"
-                          min={new Date().toISOString().split('T')[0]}
-                          required
-                        />
-                      </div>
-
-                      <div className="ds-field">
-                        <label htmlFor="time" className="ds-label">Departure Time *</label>
+                        <label htmlFor="trip" className="ds-label">Select Trip *</label>
                         <select
-                          id="time"
-                          value={selectedTime}
-                          onChange={(e) => setSelectedTime(e.target.value)}
+                          id="trip"
+                          value={selectedTripId}
+                          onChange={(e) => setSelectedTripId(e.target.value)}
                           className="ds-select"
                           required
                         >
-                          <option value="">Select time</option>
-                          {timeSlots.map((time) => (
-                            <option key={time} value={time}>{time}</option>
-                          ))}
+                          <option value="">Choose a trip</option>
+                          {trips.map((trip) => {
+                            const dt = formatDateTime(trip.departureDate + 'T' + trip.departureTime);
+                            return (
+                              <option key={trip.id} value={trip.id}>
+                                {trip.from} → {trip.to} | {dt.date} at {dt.time} | {formatPrice(trip.price)} | {trip.availableSeats} seats left
+                              </option>
+                            );
+                          })}
                         </select>
                       </div>
 
@@ -121,156 +239,190 @@ export default function BookDetailsPage() {
                           onChange={(e) => setPassengers(parseInt(e.target.value) || 1)}
                           className="ds-input"
                           min="1"
-                          max="10"
+                          max={selectedTrip ? Math.min(10, selectedTrip.availableSeats) : 10}
                           required
                         />
+                        {selectedTrip && (
+                          <p style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.6)', marginTop: '0.25rem' }}>
+                            {selectedTrip.availableSeats} seats available
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Passenger information */}
-                <div className="ds-card ds-card-pad">
-                  <div className="ds-card-head">
-                    <h2 className="ds-card-title">Passenger Information</h2>
-                  </div>
-
-                  <div className="ds-form" style={{ gap: '0.9rem' }}>
-                    <div className="ds-field">
-                      <label htmlFor="name" className="ds-label">Full Name *</label>
-                      <input
-                        type="text"
-                        id="name"
-                        value={passengerName}
-                        onChange={(e) => setPassengerName(e.target.value)}
-                        className="ds-input"
-                        placeholder="Enter full name"
-                        required
-                      />
-                    </div>
-
-                    <div className="ds-trip-grid">
-                      <div className="ds-field">
-                        <label htmlFor="contact" className="ds-label">Contact Number *</label>
-                        <input
-                          type="tel"
-                          id="contact"
-                          value={contactNumber}
-                          onChange={(e) => setContactNumber(e.target.value)}
-                          className="ds-input"
-                          placeholder="+63 912 345 6789"
-                          required
-                        />
-                      </div>
-
-                      <div className="ds-field">
-                        <label htmlFor="email" className="ds-label">Email Address *</label>
-                        <input
-                          type="email"
-                          id="email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          className="ds-input"
-                          placeholder="your@email.com"
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Booking summary */}
-                {selectedRouteData && (
+                  {/* Passenger information */}
                   <div className="ds-card ds-card-pad">
                     <div className="ds-card-head">
-                      <h2 className="ds-card-title">Booking Summary</h2>
+                      <h2 className="ds-card-title">Passenger Information</h2>
                     </div>
 
-                    <div className="ds-detail-grid">
-                      <div>
-                        <span className="ds-detail-label">Route</span>
-                        <span className="ds-detail-value">{selectedRouteData.name}</span>
+                    <div className="ds-form" style={{ gap: '0.9rem' }}>
+                      <div className="ds-field">
+                        <label htmlFor="name" className="ds-label">Full Name *</label>
+                        <input
+                          type="text"
+                          id="name"
+                          value={passengerName}
+                          onChange={(e) => setPassengerName(e.target.value)}
+                          className="ds-input"
+                          placeholder="Enter full name"
+                          required
+                        />
                       </div>
-                      <div>
-                        <span className="ds-detail-label">From</span>
-                        <span className="ds-detail-value">{selectedRouteData.from}</span>
-                      </div>
-                      <div>
-                        <span className="ds-detail-label">To</span>
-                        <span className="ds-detail-value">{selectedRouteData.to}</span>
-                      </div>
-                      <div>
-                        <span className="ds-detail-label">Duration</span>
-                        <span className="ds-detail-value">{selectedRouteData.duration}</span>
-                      </div>
-                      <div>
-                        <span className="ds-detail-label">Price per ticket</span>
-                        <span className="ds-detail-value">{formatPrice(selectedRouteData.price)}</span>
-                      </div>
-                      <div>
-                        <span className="ds-detail-label">Passengers</span>
-                        <span className="ds-detail-value">{passengers}</span>
+
+                      <div className="ds-trip-grid">
+                        <div className="ds-field">
+                          <label htmlFor="contact" className="ds-label">Contact Number *</label>
+                          <input
+                            type="tel"
+                            id="contact"
+                            value={contactNumber}
+                            onChange={(e) => setContactNumber(e.target.value)}
+                            className="ds-input"
+                            placeholder="+63 912 345 6789"
+                            required
+                          />
+                        </div>
+
+                        <div className="ds-field">
+                          <label htmlFor="email" className="ds-label">Email Address *</label>
+                          <input
+                            type="email"
+                            id="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="ds-input"
+                            placeholder="your@email.com"
+                            required
+                          />
+                        </div>
                       </div>
                     </div>
+                  </div>
 
-                    <div className="ds-pay-total">
-                      <span className="ds-detail-label" style={{ margin: 0 }}>
-                        Total Amount
-                      </span>
-                      <strong>{formatPrice(totalPrice)}</strong>
+                  {/* Booking summary */}
+                  {selectedTrip && (
+                    <div className="ds-card ds-card-pad">
+                      <div className="ds-card-head">
+                        <h2 className="ds-card-title">Booking Summary</h2>
+                      </div>
+
+                      <div className="ds-detail-grid">
+                        <div>
+                          <span className="ds-detail-label">Route</span>
+                          <span className="ds-detail-value">{selectedTrip.from} → {selectedTrip.to}</span>
+                        </div>
+                        <div>
+                          <span className="ds-detail-label">Departure</span>
+                          <span className="ds-detail-value">{formatDateTime(selectedTrip.departureDate + 'T' + selectedTrip.departureTime).date}</span>
+                        </div>
+                        <div>
+                          <span className="ds-detail-label">Time</span>
+                          <span className="ds-detail-value">{formatDateTime(selectedTrip.departureDate + 'T' + selectedTrip.departureTime).time}</span>
+                        </div>
+                        <div>
+                          <span className="ds-detail-label">Duration</span>
+                          <span className="ds-detail-value">{selectedTrip.duration}</span>
+                        </div>
+                        <div>
+                          <span className="ds-detail-label">Bus</span>
+                          <span className="ds-detail-value">{selectedTrip.busNumber} ({selectedTrip.busModel})</span>
+                        </div>
+                        <div>
+                          <span className="ds-detail-label">Price per ticket</span>
+                          <span className="ds-detail-value">{formatPrice(selectedTrip.price)}</span>
+                        </div>
+                        <div>
+                          <span className="ds-detail-label">Passengers</span>
+                          <span className="ds-detail-value">{passengers}</span>
+                        </div>
+                        <div>
+                          <span className="ds-detail-label">Seats</span>
+                          <span className="ds-detail-value">{seatNumbers.join(', ')}</span>
+                        </div>
+                      </div>
+
+                      <div className="ds-pay-total">
+                        <span className="ds-detail-label" style={{ margin: 0 }}>
+                          Total Amount
+                        </span>
+                        <strong>{formatPrice(totalPrice)}</strong>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="ds-row-actions">
+                    <button
+                      type="button"
+                      className="ds-btn ds-btn-outline"
+                      onClick={() => router.back()}
+                    >
+                      Cancel
+                    </button>
+                    <button type="submit" className="ds-btn ds-btn-primary" disabled={isSubmitting || !selectedTrip}>
+                      {isSubmitting ? 'Creating Booking...' : 'Proceed to Payment'}
+                    </button>
+                  </div>
+                </form>
+
+                {/* Guidelines */}
+                <aside className="ds-card ds-card-pad">
+                  <div className="ds-card-head">
+                    <h2 className="ds-card-title">Booking Guidelines</h2>
+                  </div>
+
+                  <ol className="ds-steps">
+                    <li><span>1</span>Arrive at the terminal 30 minutes before departure.</li>
+                    <li><span>2</span>Bring a valid ID for verification.</li>
+                    <li><span>3</span>Tickets are non-transferable.</li>
+                    <li><span>4</span>Cancellations must be made 24 hours in advance.</li>
+                  </ol>
+
+                  <div className="ds-note ds-note-info" style={{ marginTop: '1.2rem' }}>
+                    Children under 3 travel free (no seat). Senior citizens and PWDs get a
+                    20% discount. Maximum 2 bags per passenger (20kg total).
+                  </div>
+
+                  <h3 className="ds-subhead">Need Help?</h3>
+                  <div className="ds-contact-grid">
+                    <div className="ds-contact-item">
+                      <strong>Phone</strong>
+                      <span>+63 123 456 7890</span>
+                    </div>
+                    <div className="ds-contact-item">
+                      <strong>Email</strong>
+                      <span>support@busticketing.com</span>
                     </div>
                   </div>
-                )}
-
-                <div className="ds-row-actions">
-                  <button
-                    type="button"
-                    className="ds-btn ds-btn-outline"
-                    onClick={() => window.history.back()}
-                  >
-                    Cancel
-                  </button>
-                  <button type="submit" className="ds-btn ds-btn-primary">
-                    Proceed to Payment
-                  </button>
-                </div>
-              </form>
-
-              {/* Guidelines */}
-              <aside className="ds-card ds-card-pad">
-                <div className="ds-card-head">
-                  <h2 className="ds-card-title">Booking Guidelines</h2>
-                </div>
-
-                <ol className="ds-steps">
-                  <li><span>1</span>Arrive at the terminal 30 minutes before departure.</li>
-                  <li><span>2</span>Bring a valid ID for verification.</li>
-                  <li><span>3</span>Tickets are non-transferable.</li>
-                  <li><span>4</span>Cancellations must be made 24 hours in advance.</li>
-                </ol>
-
-                <div className="ds-note ds-note-info" style={{ marginTop: '1.2rem' }}>
-                  Children under 3 travel free (no seat). Senior citizens and PWDs get a
-                  20% discount. Maximum 2 bags per passenger (20kg total).
-                </div>
-
-                <h3 className="ds-subhead">Need Help?</h3>
-                <div className="ds-contact-grid">
-                  <div className="ds-contact-item">
-                    <strong>Phone</strong>
-                    <span>+63 123 456 7890</span>
-                  </div>
-                  <div className="ds-contact-item">
-                    <strong>Email</strong>
-                    <span>support@busticketing.com</span>
-                  </div>
-                </div>
-              </aside>
-            </div>
+                </aside>
+              </div>
+            )}
           </main>
         </div>
       </div>
- </AuthGate>
+  );
+}
 
+export default function BookDetailsPage() {
+  return (
+    <AuthGate>
+      <Suspense fallback={
+        <div className="ds-app">
+          <Navbar user={{ name: 'Traveller', role: 'Passenger' }} />
+          <div className="ds-app-body">
+            <Sidebar isAuthenticated username="Traveller" />
+            <main className="ds-page">
+              <div className="ds-empty">
+                <div className="loading" style={{ margin: '0 auto' }}></div>
+                <p style={{ marginTop: '1rem', color: 'rgba(255,255,255,0.7)' }}>Loading...</p>
+              </div>
+            </main>
+          </div>
+        </div>
+      }>
+        <BookingFormContent />
+      </Suspense>
+    </AuthGate>
   );
 }

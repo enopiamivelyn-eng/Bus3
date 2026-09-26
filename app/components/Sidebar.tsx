@@ -152,7 +152,7 @@ export default function Sidebar({
       {/* Brand lockup */}
       <div className="ds-sidebar-brand">
         <div className="ds-sidebar-logo">
-          <Image src="/busicon.png" alt="" width={499} height={499} priority />
+          <Image src="/hero-bus.png" alt="" width={499} height={499} priority />
         </div>
         <div className="ds-sidebar-brand-text">
           <strong>Bus Ticket</strong>
@@ -162,7 +162,9 @@ export default function Sidebar({
 
       {/* Navigation menu */}
       <nav className="ds-nav-list" aria-label="Main">
-        {navLinks.map((link) => (
+        {navLinks
+          .filter((link) => link.href !== '/users' || user?.role === 'admin')
+          .map((link) => (
           <Link
             key={link.href}
             href={link.href}
